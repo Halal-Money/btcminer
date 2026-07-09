@@ -170,6 +170,12 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(247, 147, 26, 0.3);
         }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
         .btn-secondary {
             background: #2a3050;
             color: #ccd6f6;
@@ -744,19 +750,25 @@
             gap: 12px;
             box-shadow: 0 0 20px rgba(247, 147, 26, 0.3);
         }
-        .mine-btn:hover {
+        .mine-btn:hover:not(:disabled) {
             transform: scale(1.02);
             box-shadow: 0 0 30px rgba(247, 147, 26, 0.5);
         }
-        .mine-btn:active {
+        .mine-btn:active:not(:disabled) {
             transform: scale(0.98);
         }
         .mine-btn.active {
             background: linear-gradient(135deg, #69db7c, #40c057);
             box-shadow: 0 0 20px rgba(105, 219, 124, 0.3);
         }
-        .mine-btn.active:hover {
+        .mine-btn.active:hover:not(:disabled) {
             box-shadow: 0 0 30px rgba(105, 219, 124, 0.5);
+        }
+        .mine-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
         .mine-btn .mining-progress {
             font-size: 14px;
@@ -784,6 +796,21 @@
             background: #f7931a;
             border-color: #f7931a;
             color: #0b0e1a;
+        }
+        .disabled-message {
+            font-size: 12px;
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 6px;
+        }
+        .success-badge {
+            color: #69db7c;
+            font-weight: 600;
+            background: rgba(105, 219, 124, 0.15);
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: inline-block;
+            border: 1px solid #69db7c;
         }
     </style>
 </head>
@@ -873,13 +900,13 @@
                 </div>
 
                 <!-- Mining Button -->
-                <button class="mine-btn" id="mineBtn" onclick="toggleMining()">
+                <button class="mine-btn" id="mineBtn" onclick="toggleMining()" disabled>
                     <i class="fas fa-hard-hat"></i>
                     <span id="mineBtnText">Start Mining</span>
                     <span class="mining-progress" id="mineProgress"></span>
                 </button>
-                <div style="font-size:12px;color:#4a5070;text-align:center;margin-top:8px;">
-                    <span id="miningStatus">⚡ Click to mine 1 USDT over 24 hours</span>
+                <div id="miningStatusMsg" style="font-size:12px;color:#4a5070;text-align:center;margin-top:8px;">
+                    ⚡ Buy a miner package first to start mining
                 </div>
 
                 <div class="grid-4" style="margin-top:16px;">
@@ -919,7 +946,7 @@
                 </div>
             </div>
 
-            <!-- ===== PAGE: PROJECT (UPDATED) ===== -->
+            <!-- ===== PAGE: PROJECT ===== -->
             <div class="page" id="page-project">
                 <div class="page-header">
                     <span class="logo-text"><i class="fab fa-bitcoin"></i> BTC Cloud Mining</span>
@@ -1068,7 +1095,7 @@
                 </div>
             </div>
 
-            <!-- ===== PAGE: ACCOUNT (new) ===== -->
+            <!-- ===== PAGE: ACCOUNT ===== -->
             <div class="page" id="page-account">
                 <div class="page-header">
                     <span class="logo-text"><i class="fab fa-bitcoin"></i> BTC Cloud Mining</span>
@@ -1095,7 +1122,7 @@
                 </div>
             </div>
 
-            <!-- ===== PAGE: RECHARGE ===== -->
+            <!-- ===== PAGE: RECHARGE (with Amount & TXID) ===== -->
             <div class="page" id="page-recharge">
                 <div class="page-header">
                     <span class="logo-text"><i class="fab fa-bitcoin"></i> BTC Cloud Mining</span>
@@ -1114,14 +1141,24 @@
                     </div>
                     <div id="qrcode-container"></div>
                     <div style="margin-top:10px;font-size:13px;color:#8892b0;">
-                        <p><strong>Recharge completed</strong></p>
+                        <p><strong>Recharge Instructions</strong></p>
                         <p>1. Copy the address above or scan the QR code and select the <span id="rechargeNetwork">BNB Smart Chain (BEP20)</span> network to deposit USDT</p>
-                        <p>2. Please do not recharge other non-<span id="rechargeNetwork2">BEP20</span>-USDT assets. The funds will arrive in your account in about 1 to 3 minutes</p>
-                        <p>3. If it does not arrive for a long time, please refresh the page or contact customer service</p>
+                        <p>2. Please do not recharge other non-<span id="rechargeNetwork2">BEP20</span>-USDT assets.</p>
+                        <p>3. After sending, fill in the amount and TXID below and submit.</p>
                     </div>
-                    <button class="btn btn-success" style="margin-top:12px;" onclick="markRechargeComplete()">
-                        <i class="fas fa-check-circle"></i> I've completed the recharge
-                    </button>
+                    <div style="margin-top:14px;border-top:1px solid #1e2338;padding-top:14px;">
+                        <div class="form-group">
+                            <label for="depositAmount"><i class="fas fa-dollar-sign"></i> Amount (USDT)</label>
+                            <input type="number" id="depositAmount" placeholder="Enter amount" step="0.01" min="0.01" />
+                        </div>
+                        <div class="form-group">
+                            <label for="depositTxid"><i class="fas fa-hashtag"></i> Transaction ID (TXID)</label>
+                            <input type="text" id="depositTxid" placeholder="Paste your transaction hash" />
+                        </div>
+                        <button class="btn btn-success" onclick="submitDeposit()">
+                            <i class="fas fa-check-circle"></i> Submit Deposit Request
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1214,9 +1251,12 @@
                         <label>Re-enter new password</label>
                         <input type="password" id="confirmNewPassword" placeholder="Re-enter new password" />
                     </div>
-                    <button class="btn btn-primary" onclick="changePassword()">
+                    <button class="btn btn-primary" id="changePwBtn" onclick="changePassword()">
                         <i class="fas fa-check"></i> Confirm
                     </button>
+                    <div id="pwSuccessMsg" style="display:none;margin-top:12px;text-align:center;">
+                        <span class="success-badge"><i class="fas fa-check-circle"></i> Password changed successfully!</span>
+                    </div>
                 </div>
             </div>
 
@@ -1377,7 +1417,7 @@
             </div>
         </div>
 
-        <!-- Buy Now Modal (UPDATED) -->
+        <!-- Buy Now Modal -->
         <div class="modal-overlay" id="buyModal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1459,9 +1499,9 @@
         let miningInterval = null;
         let miningStartTime = null;
         let miningActive = false;
-        let miningTotalMined = 0; // in USDT, up to 1
-        const MINING_DURATION = 24 * 60 * 60; // 24 hours in seconds
-        const MINING_TOTAL = 1.0; // 1 USDT per day
+        let miningTotalMined = 0;
+        const MINING_DURATION = 24 * 60 * 60;
+        const MINING_TOTAL = 1.0;
 
         // ================================================================
         // DOM REFS
@@ -1553,6 +1593,7 @@
                         balance: 0,
                         inviteCode: inviteCode,
                         referrer: referrerId,
+                        hasMiner: false,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                         totalDeposits: 0,
                         totalWithdrawals: 0,
@@ -1566,7 +1607,6 @@
                             level: 1,
                             joinedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
-                        // Also give referrer a bonus? Not implemented.
                     }
                     showMessage('Account created successfully!', 'success');
                 } catch (error) {
@@ -1623,8 +1663,9 @@
                 }
                 navigateTo('home');
                 await loadAvailablePackages();
-                // Resume mining if active
                 await resumeMining();
+                // Update mining button state based on hasMiner
+                updateMiningButtonState();
             } else {
                 currentUser = null;
                 currentUserData = null;
@@ -1637,7 +1678,6 @@
                 document.getElementById('repassword').value = '';
                 document.getElementById('inviteCode').value = '';
                 clearMessage();
-                // Stop mining if any
                 if (miningInterval) {
                     clearInterval(miningInterval);
                     miningInterval = null;
@@ -1661,6 +1701,7 @@
                         balance: 0,
                         inviteCode: inviteCode,
                         referrer: null,
+                        hasMiner: false,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                         totalDeposits: 0,
                         totalWithdrawals: 0,
@@ -1720,18 +1761,43 @@
         }
 
         // ================================================================
+        // MINING BUTTON STATE
+        // ================================================================
+        function updateMiningButtonState() {
+            const btn = document.getElementById('mineBtn');
+            const statusMsg = document.getElementById('miningStatusMsg');
+            const hasMiner = currentUserData && currentUserData.hasMiner === true;
+
+            if (hasMiner) {
+                btn.disabled = false;
+                statusMsg.textContent = '⚡ Click to mine 1 USDT over 24 hours';
+                statusMsg.style.color = '#4a5070';
+            } else {
+                btn.disabled = true;
+                statusMsg.textContent = '⚠️ Buy a miner package first to start mining';
+                statusMsg.style.color = '#ff6b6b';
+            }
+            // Update button appearance if mining is active
+            if (miningActive && hasMiner) {
+                btn.disabled = false;
+            }
+            updateMiningUI();
+        }
+
+        // ================================================================
         // MINING LOGIC
         // ================================================================
         async function toggleMining() {
             if (!currentUser) return;
-            // Check if mining is already active
+            if (!currentUserData || !currentUserData.hasMiner) {
+                showMessage('You need to buy a miner package first!', 'error');
+                return;
+            }
             if (miningActive) {
-                // Stop mining - but we can allow stopping manually? We'll just show status.
                 showMessage('Mining is already active!', 'error');
                 return;
             }
 
-            // Check if user has already mined today (check mining start time)
             if (currentUserData.miningStart) {
                 const start = currentUserData.miningStart.toDate ? currentUserData.miningStart.toDate() : new Date(
                     currentUserData.miningStart);
@@ -1742,7 +1808,6 @@
                 }
             }
 
-            // Start mining
             try {
                 const now = new Date();
                 await db.collection('users').doc(currentUser.uid).update({
@@ -1771,12 +1836,9 @@
                     currentUserData.miningStart);
                 const elapsed = (Date.now() - start.getTime()) / 1000;
                 if (elapsed < MINING_DURATION) {
-                    // Resume
                     miningActive = true;
                     miningStartTime = start;
                     miningTotalMined = currentUserData.miningTotalMined || 0;
-                    // Credit already earned but not reflected?
-                    // We'll compute the amount earned so far and add to balance if not done.
                     const earned = (elapsed / MINING_DURATION) * MINING_TOTAL;
                     if (earned > miningTotalMined) {
                         const toAdd = earned - miningTotalMined;
@@ -1793,7 +1855,6 @@
                     startMiningInterval();
                     updateMiningUI();
                 } else {
-                    // Mining finished, reset
                     await db.collection('users').doc(currentUser.uid).update({
                         miningActive: false,
                         miningStart: null,
@@ -1805,6 +1866,7 @@
                     miningActive = false;
                 }
             }
+            updateMiningButtonState();
         }
 
         function startMiningInterval() {
@@ -1814,7 +1876,6 @@
                 const now = Date.now();
                 const elapsed = (now - miningStartTime.getTime()) / 1000;
                 if (elapsed >= MINING_DURATION) {
-                    // Mining complete, stop
                     await completeMining();
                     return;
                 }
@@ -1822,13 +1883,10 @@
                 const toAdd = earned - miningTotalMined;
                 if (toAdd > 0) {
                     const newBalance = (currentUserData.balance || 0) + toAdd;
-                    // Update Firestore only every 10 seconds to avoid excessive writes
-                    // We'll update locally and persist periodically
                     currentUserData.balance = newBalance;
                     currentUserData.miningTotalMined = earned;
                     miningTotalMined = earned;
                     updateUI();
-                    // Save to Firestore every 10 seconds
                     if (Math.floor(Date.now() / 10000) % 1 === 0) {
                         await db.collection('users').doc(currentUser.uid).update({
                             balance: newBalance,
@@ -1842,7 +1900,6 @@
 
         async function completeMining() {
             if (!currentUser) return;
-            // Ensure final credit
             const finalEarned = MINING_TOTAL;
             const toAdd = finalEarned - miningTotalMined;
             if (toAdd > 0) {
@@ -1852,6 +1909,12 @@
                     miningActive: false,
                     miningStart: null,
                     miningTotalMined: 0
+                });
+                await db.collection('users').doc(currentUser.uid).collection('transactions').add({
+                    type: 'mining',
+                    amount: finalEarned,
+                    description: 'Daily mining reward (1 USDT)',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 currentUserData.balance = newBalance;
                 currentUserData.miningActive = false;
@@ -1867,13 +1930,14 @@
                 miningInterval = null;
             }
             updateMiningUI();
+            updateMiningButtonState();
         }
 
         function updateMiningUI() {
             const btn = document.getElementById('mineBtn');
             const text = document.getElementById('mineBtnText');
             const progress = document.getElementById('mineProgress');
-            const status = document.getElementById('miningStatus');
+            const statusMsg = document.getElementById('miningStatusMsg');
 
             if (miningActive && miningStartTime) {
                 const elapsed = (Date.now() - miningStartTime.getTime()) / 1000;
@@ -1882,13 +1946,20 @@
                 text.textContent = 'Mining...';
                 progress.textContent = `${earned.toFixed(4)} USDT / ${MINING_TOTAL} USDT`;
                 btn.classList.add('active');
-                status.textContent = `⛏️ Mining in progress... ${progressPercent.toFixed(1)}% complete`;
-                // Update button style
+                statusMsg.textContent = `⛏️ Mining in progress... ${progressPercent.toFixed(1)}% complete`;
+                statusMsg.style.color = '#69db7c';
             } else {
+                const hasMiner = currentUserData && currentUserData.hasMiner === true;
                 text.textContent = 'Start Mining';
                 progress.textContent = '';
                 btn.classList.remove('active');
-                status.textContent = '⚡ Click to mine 1 USDT over 24 hours';
+                if (hasMiner) {
+                    statusMsg.textContent = '⚡ Click to mine 1 USDT over 24 hours';
+                    statusMsg.style.color = '#4a5070';
+                } else {
+                    statusMsg.textContent = '⚠️ Buy a miner package first to start mining';
+                    statusMsg.style.color = '#ff6b6b';
+                }
             }
         }
 
@@ -1927,6 +1998,7 @@
             loadFinancialRecords();
             loadAvailablePackages();
             updateMiningUI();
+            updateMiningButtonState();
             loadAccountData();
         }
 
@@ -1981,7 +2053,6 @@
         async function loadAccountData() {
             if (!currentUser) return;
             try {
-                // Deposits
                 const depSnap = await db.collection('users').doc(currentUser.uid).collection('transactions')
                     .where('type', '==', 'deposit')
                     .orderBy('timestamp', 'desc')
@@ -2009,7 +2080,6 @@
                     depContainer.innerHTML = html;
                 }
 
-                // Withdrawals
                 const withSnap = await db.collection('users').doc(currentUser.uid).collection('transactions')
                     .where('type', '==', 'withdrawal')
                     .orderBy('timestamp', 'desc')
@@ -2050,8 +2120,6 @@
                 const teamRef = db.collection('users').doc(currentUser.uid).collection('team');
                 const snapshot = await teamRef.get();
                 document.getElementById('teamSize').textContent = snapshot.size;
-                // Additional stats would be computed from team members' data
-                // For demo, placeholders remain
             } catch (error) {
                 console.error('Error loading team stats:', error);
             }
@@ -2136,24 +2204,32 @@
             });
         }
 
-        function markRechargeComplete() {
-            // Create a deposit request
-            const amount = prompt('Enter the amount you deposited (USDT):');
-            if (!amount || isNaN(amount) || amount <= 0) {
-                showMessage('Please enter a valid amount.', 'error');
+        function submitDeposit() {
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const txid = document.getElementById('depositTxid').value.trim();
+
+            if (!amount || amount <= 0) {
+                showMessage('Please enter a valid deposit amount.', 'error');
                 return;
             }
-            // Submit deposit request to Firestore
+            if (!txid) {
+                showMessage('Please enter the transaction ID (TXID).', 'error');
+                return;
+            }
+
             db.collection('deposits').add({
                 userId: currentUser.uid,
                 userEmail: currentUser.email,
-                amount: parseFloat(amount),
+                amount: amount,
                 currency: rechargeCurrency + '-USDT',
+                txid: txid,
                 status: 'pending',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                note: 'User marked recharge complete'
+                note: 'User submitted deposit via form'
             }).then(() => {
                 showMessage('Deposit request submitted for admin approval.', 'success');
+                document.getElementById('depositAmount').value = '';
+                document.getElementById('depositTxid').value = '';
             }).catch(error => {
                 showMessage('Error: ' + error.message, 'error');
             });
@@ -2195,7 +2271,6 @@
                 return;
             }
 
-            // Verify password using Firebase reauthentication
             try {
                 const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
                 await currentUser.reauthenticateWithCredential(cred);
@@ -2210,9 +2285,6 @@
                 return;
             }
 
-            // Check if already withdrew today (optional - we can implement later)
-
-            // Create withdrawal request
             try {
                 await db.collection('withdrawals').add({
                     userId: currentUser.uid,
@@ -2237,7 +2309,7 @@
         }
 
         // ================================================================
-        // CHANGE PASSWORD
+        // CHANGE PASSWORD (with success message & hide button)
         // ================================================================
         async function changePassword() {
             const old = document.getElementById('oldPassword').value;
@@ -2261,10 +2333,14 @@
                 const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, old);
                 await currentUser.reauthenticateWithCredential(cred);
                 await currentUser.updatePassword(newpw);
-                showMessage('Password changed successfully!', 'success');
+                // Hide the confirm button and show success message
+                document.getElementById('changePwBtn').style.display = 'none';
+                document.getElementById('pwSuccessMsg').style.display = 'block';
+                // Clear fields
                 document.getElementById('oldPassword').value = '';
                 document.getElementById('newPassword').value = '';
                 document.getElementById('confirmNewPassword').value = '';
+                showMessage('Password changed successfully!', 'success');
             } catch (error) {
                 showMessage('Error: ' + error.message, 'error');
             }
@@ -2428,7 +2504,7 @@
         }
 
         // ================================================================
-        // BUY NOW (UPDATED with package deduction)
+        // BUY NOW – with balance check & hasMiner flag
         // ================================================================
         function showBuyNow() {
             document.getElementById('buyModal').classList.add('show');
@@ -2443,8 +2519,8 @@
                 return;
             }
 
-            if (currentUserData.balance < amount) {
-                showMessage('Insufficient balance. Please recharge first.', 'error');
+            if ((currentUserData.balance || 0) < amount) {
+                showMessage('You do not have enough balance. Please recharge first.', 'error');
                 return;
             }
 
@@ -2466,6 +2542,7 @@
                 const newBalance = currentUserData.balance - amount;
                 await db.collection('users').doc(currentUser.uid).update({
                     balance: newBalance,
+                    hasMiner: true // 👈 unlock mining
                 });
 
                 await systemRef.update({
@@ -2476,10 +2553,11 @@
                     type: 'purchase',
                     amount: amount,
                     description: 'Purchased BTC Miner 1 package',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
                 currentUserData.balance = newBalance;
+                currentUserData.hasMiner = true;
                 updateUI();
                 closeModal();
 
@@ -2488,7 +2566,7 @@
                     el.textContent = newAvailable.toLocaleString();
                 });
 
-                showMessage('Miner package purchased successfully!', 'success');
+                showMessage('Miner package purchased successfully! You can now start mining.', 'success');
             } catch (error) {
                 showMessage('Error: ' + error.message, 'error');
             }
@@ -2642,7 +2720,10 @@
                                 <span style="color:#f7931a;font-weight:700;">$${data.amount?.toFixed(2) || '0.00'}</span>
                             </div>
                             <div style="font-size:12px;color:#8892b0;">
-                                ${data.currency || 'USDT'} • ${data.createdAt ? data.createdAt.toDate().toLocaleString() : 'N/A'}
+                                ${data.currency || 'USDT'} • TXID: ${data.txid || 'N/A'}
+                            </div>
+                            <div style="font-size:12px;color:#8892b0;">
+                                ${data.createdAt ? data.createdAt.toDate().toLocaleString() : 'N/A'}
                             </div>
                             <div style="margin-top:6px;">
                                 <span class="${statusClass}" style="font-weight:600;">${status.toUpperCase()}</span>
@@ -2681,7 +2762,7 @@
                         transaction.set(transRef, {
                             type: 'deposit',
                             amount: data.amount,
-                            description: 'Deposit approved',
+                            description: 'Deposit approved (TXID: ' + (data.txid || 'N/A') + ')',
                             timestamp: firebase.firestore.FieldValue.serverTimestamp()
                         });
                     }
@@ -2917,17 +2998,18 @@
         }
 
         // ================================================================
-        // INIT: Check URL for invite code
+        // INIT: Check URL for invite code (AUTO-FILL FIX)
         // ================================================================
         (function() {
             const params = new URLSearchParams(window.location.search);
             const ref = params.get('ref');
             if (ref) {
-                document.getElementById('inviteCode').value = ref;
-                // Show a subtle message
+                const inviteField = document.getElementById('inviteCode');
+                inviteField.value = ref;
+                // Show a subtle notification
                 setTimeout(() => {
-                    showMessage('Invitation code auto-filled!', 'success');
-                    setTimeout(clearMessage, 2000);
+                    showMessage('✅ Invitation code auto-filled from link!', 'success');
+                    setTimeout(clearMessage, 3000);
                 }, 500);
             }
         })();

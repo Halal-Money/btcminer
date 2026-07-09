@@ -3468,4 +3468,654 @@
               '<div class="no-data" style="padding:10px;">No referrals</div>';
           else {
             level1.forEach((m) => {
-              html += `<div class="record-item"><span>${m.email}</span><span>Joined: ${m.joinedAt ? m.joinedAt.toDate().toLocaleDateString() : "N/A"}</span></
+              html += `<div class="record-item"><span>${m.email}</span><span>Joined: ${m.joinedAt ? m.joinedAt.toDate().toLocaleDateString() : "N/A"}</span></div>`;
+            });
+          }
+          html += `<h4 style="color:#4dabf7;margin-top:12px;">Level 2 (2.5%)</h4>`;
+          if (level2.length === 0)
+            html +=
+              '<div class="no-data" style="padding:10px;">No referrals</div>';
+          else {
+            level2.forEach((m) => {
+              html += `<div class="record-item"><span>${m.email}</span><span>Joined: ${m.joinedAt ? m.joinedAt.toDate().toLocaleDateString() : "N/A"}</span></div>`;
+            });
+          }
+          html += `<h4 style="color:#69db7c;margin-top:12px;">Level 3 (1%)</h4>`;
+          if (level3.length === 0)
+            html +=
+              '<div class="no-data" style="padding:10px;">No referrals</div>';
+          else {
+            level3.forEach((m) => {
+              html += `<div class="record-item"><span>${m.email}</span><span>Joined: ${m.joinedAt ? m.joinedAt.toDate().toLocaleDateString() : "N/A"}</span></div>`;
+            });
+          }
+          body.innerHTML = html;
+        } catch (error) {
+          body.innerHTML =
+            '<div style="color:#ff6b6b;">Error loading team details.</div>';
+        }
+      }
+
+      // ================================================================
+      // BUY NOW – with balance check, success message, hide button, set hasMiner
+      // ================================================================
+      function showBuyNow() {
+        document.getElementById("buyModal").classList.add("show");
+        document.getElementById("buyAmount").value = "";
+      }
+
+      async function confirmBuy() {
+        const amount = parseFloat(document.getElementById("buyAmount").value);
+
+        if (!amount || amount !== 100) {
+          showMessage("Price is exactly 100 USDT.", "error");
+          return;
+        }
+
+        // Check balance
+        if ((currentUserData.balance || 0) < amount) {
+          showMessage("Insufficient balance. Please recharge first.", "error");
+          return;
+        }
+
+        try {
+          const systemRef = db.collection("system").doc("minerPackages");
+          const doc = await systemRef.get();
+          let available = 18002700;
+          if (doc.exists) {
+            available = doc.data().available || 18002700;
+          } else {
+            await systemRef.set({ available: 18002700 });
+          }
+
+          if (available <= 0) {
+            showMessage("Sorry, all packages are sold out!", "error");
+            return;
+          }
+
+          const newBalance = currentUserData.balance - amount;
+          await db.collection("users").doc(currentUser.uid).update({
+            balance: newBalance,
+            hasMiner: true, // 👈 Unlock mining
+          });
+
+          await systemRef.update({
+            available: available - 1,
+          });
+
+          await db
+            .collection("users")
+            .doc(currentUser.uid)
+            .collection("transactions")
+            .add({
+              type: "purchase",
+              amount: amount,
+              description: "Purchased BTC Miner 1 package",
+              timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+
+          currentUserData.balance = newBalance;
+          currentUserData.hasMiner = true;
+          updateUI();
+          closeModal();
+
+          const newAvailable = available - 1;
+          document
+            .querySelectorAll("#minerAvailable, #minerAvailableDisplay")
+            .forEach((el) => {
+              el.textContent = newAvailable.toLocaleString();
+            });
+
+          // Hide Buy Now button and show success
+          document.getElementById('buyNowBtn').style.display = 'none';
+          document.getElementById('buySuccessMsg').style.display = 'block';
+
+          showMessage("Package purchased successfully! You can now start mining.", "success");
+
+          // Enable mining button
+          updateMiningButtonState();
+        } catch (error) {
+          showMessage("Error: " + error.message, "error");
+        }
+      }
+
+      // ================================================================
+      // ADMIN FUNCTIONS
+      // ================================================================
+      async function loadAdminData() {
+        if (!isAdmin) return;
+        try {
+          const usersSnap = await db.collection("users").get();
+          document.getElementById("adminTotalUsers").textContent =
+            usersSnap.size;
+
+          const depSnap = await db
+            .collection("deposits")
+            .where("status", "==", "approved")
+            .get();
+          let totalDep = 0;
+          depSnap.forEach((d) => (totalDep += d.data().amount || 0));
+          document.getElementById("adminTotalDeposits").textContent =
+            "$" + totalDep.toFixed(2);
+
+          const withSnap = await db
+            .collection("withdrawals")
+            .where("status", "==", "approved")
+            .get();
+          let totalWith = 0;
+          withSnap.forEach((d) => (totalWith += d.data().amount || 0));
+          document.getElementById("adminTotalWithdrawals").textContent =
+            "$" + totalWith.toFixed(2);
+
+          const pendingWith = await db
+            .collection("withdrawals")
+            .where("status", "==", "pending")
+            .get();
+          document.getElementById("adminPendingWithdrawals").textContent =
+            pendingWith.size;
+
+          document.getElementById("adminBalance").textContent = "$1,000,000.00";
+        } catch (error) {
+          console.error("Error loading admin data:", error);
+        }
+      }
+
+      function switchAdminTab(tab) {
+        adminTab = tab;
+        document.querySelectorAll(".admin-tabs button").forEach((b) => {
+          b.classList.toggle("active", b.dataset.tab === tab);
+        });
+        document
+          .querySelectorAll(".admin-content")
+          .forEach((c) => (c.style.display = "none"));
+        const targetMap = {
+          dashboard: "adminDashboard",
+          users: "adminUsers",
+          deposits: "adminDeposits",
+          withdrawals: "adminWithdrawals",
+          reports: "adminReports",
+        };
+        document.getElementById(targetMap[tab]).style.display = "block";
+        if (tab === "users") refreshUsers();
+        if (tab === "deposits") loadAdminDeposits();
+        if (tab === "withdrawals") loadAdminWithdrawals();
+        if (tab === "reports") loadReports();
+      }
+
+      async function refreshUsers() {
+        const tbody = document.getElementById("usersTableBody");
+        tbody.innerHTML =
+          '<tr><td colspan="4" style="text-align:center;color:#4a5070;">Loading...</td></tr>';
+        try {
+          const snapshot = await db.collection("users").get();
+          let html = "";
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            const email = data.email || "N/A";
+            const balance = data.balance || 0;
+            const invite = data.inviteCode || "N/A";
+            html += `
+                        <tr>
+                            <td>${email}</td>
+                            <td>$${balance.toFixed(2)}</td>
+                            <td>${invite}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="openBalanceModal('${doc.id}','${email}',${balance})">Adjust</button>
+                            </td>
+                        </tr>
+                    `;
+          });
+          tbody.innerHTML = html;
+        } catch (error) {
+          tbody.innerHTML =
+            '<tr><td colspan="4" style="color:#ff6b6b;">Error loading users</td></tr>';
+        }
+      }
+
+      let balanceTargetUserId = null;
+
+      function openBalanceModal(userId, email, currentBalance) {
+        balanceTargetUserId = userId;
+        document.getElementById("balanceUserEmail").value = email;
+        document.getElementById("balanceCurrent").value =
+          "$" + currentBalance.toFixed(2);
+        document.getElementById("balanceAmount").value = "";
+        document.getElementById("balanceReason").value = "";
+        document.getElementById("balanceModal").classList.add("show");
+      }
+
+      async function submitBalanceAdjust() {
+        const amount = parseFloat(
+          document.getElementById("balanceAmount").value,
+        );
+        const reason = document.getElementById("balanceReason").value.trim();
+        if (isNaN(amount) || amount === 0) {
+          showMessage("Please enter a valid amount.", "error");
+          return;
+        }
+        if (!reason) {
+          showMessage("Please enter a reason.", "error");
+          return;
+        }
+        try {
+          const userRef = db.collection("users").doc(balanceTargetUserId);
+          await db.runTransaction(async (transaction) => {
+            const doc = await transaction.get(userRef);
+            if (!doc.exists) throw new Error("User not found");
+            const current = doc.data().balance || 0;
+            const newBalance = current + amount;
+            transaction.update(userRef, { balance: newBalance });
+            const transRef = userRef.collection("transactions").doc();
+            transaction.set(transRef, {
+              type: "admin_adjustment",
+              amount: amount,
+              description: reason,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+          });
+          showMessage("Balance updated successfully!", "success");
+          closeBalanceModal();
+          refreshUsers();
+          if (currentUser && currentUser.uid === balanceTargetUserId) {
+            currentUserData.balance = (currentUserData.balance || 0) + amount;
+            updateUI();
+          }
+        } catch (error) {
+          showMessage("Error: " + error.message, "error");
+        }
+      }
+
+      // ================================================================
+      // ADMIN DEPOSITS – with FIXED approve (adds balance)
+      // ================================================================
+      async function loadAdminDeposits() {
+        const container = document.getElementById("depositsList");
+        container.innerHTML =
+          '<div style="color:#4a5070;text-align:center;">Loading...</div>';
+        try {
+          const snapshot = await db
+            .collection("deposits")
+            .orderBy("createdAt", "desc")
+            .get();
+          if (snapshot.empty) {
+            container.innerHTML =
+              '<div class="no-data"><i class="fas fa-inbox"></i> No deposits</div>';
+            return;
+          }
+          let html = "";
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            const status = data.status || "pending";
+            const statusClass =
+              status === "pending"
+                ? "status-pending"
+                : status === "approved"
+                  ? "status-approved"
+                  : "status-rejected";
+            html += `
+                        <div class="card" style="border-left:3px solid ${status === "approved" ? "#69db7c" : status === "rejected" ? "#ff6b6b" : "#ffd43b"};">
+                            <div style="display:flex;justify-content:space-between;">
+                                <span style="color:#ccd6f6;">${data.userEmail || "N/A"}</span>
+                                <span style="color:#f7931a;font-weight:700;">$${data.amount?.toFixed(2) || "0.00"}</span>
+                            </div>
+                            <div style="font-size:12px;color:#8892b0;">
+                                ${data.currency || "USDT"} • TXID: ${data.txid || "N/A"}
+                            </div>
+                            <div style="font-size:12px;color:#8892b0;">
+                                ${data.createdAt ? data.createdAt.toDate().toLocaleString() : "N/A"}
+                            </div>
+                            <div style="margin-top:6px;">
+                                <span class="${statusClass}" style="font-weight:600;">${status.toUpperCase()}</span>
+                            </div>
+                            ${status === "pending" ? `
+                                <div style="margin-top:8px;display:flex;gap:6px;">
+                                    <button class="btn btn-sm btn-success" onclick="approveDeposit('${doc.id}')">Approve</button>
+                                    <button class="btn btn-sm btn-danger" onclick="rejectDeposit('${doc.id}')">Reject</button>
+                                </div>
+                            ` : ""}
+                        </div>
+                    `;
+          });
+          container.innerHTML = html;
+        } catch (error) {
+          container.innerHTML =
+            '<div style="color:#ff6b6b;">Error loading deposits</div>';
+        }
+      }
+
+      // FIXED: approveDeposit – properly adds balance to user
+      async function approveDeposit(id) {
+        try {
+          const doc = await db.collection("deposits").doc(id).get();
+          const data = doc.data();
+          if (!data || !data.userId) {
+            showMessage("Deposit data missing user ID.", "error");
+            return;
+          }
+
+          // Update deposit status
+          await db.collection("deposits").doc(id).update({
+            status: "approved"
+          });
+
+          // Get user reference
+          const userRef = db.collection("users").doc(data.userId);
+          const userDoc = await userRef.get();
+
+          if (userDoc.exists) {
+            const currentBalance = userDoc.data().balance || 0;
+            const newBalance = currentBalance + data.amount;
+            await userRef.update({
+              balance: newBalance,
+              totalDeposits: firebase.firestore.FieldValue.increment(data.amount)
+            });
+            // Add transaction record
+            await userRef.collection("transactions").add({
+              type: "deposit",
+              amount: data.amount,
+              description: "Deposit approved (TXID: " + (data.txid || "N/A") + ")",
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            showMessage("Deposit approved and balance added!", "success");
+          } else {
+            showMessage("User not found.", "error");
+          }
+
+          loadAdminDeposits();
+          loadAdminData();
+        } catch (error) {
+          showMessage("Error approving deposit: " + error.message, "error");
+        }
+      }
+
+      async function rejectDeposit(id) {
+        try {
+          await db
+            .collection("deposits")
+            .doc(id)
+            .update({ status: "rejected" });
+          showMessage("Deposit rejected.", "success");
+          loadAdminDeposits();
+          loadAdminData();
+        } catch (error) {
+          showMessage("Error: " + error.message, "error");
+        }
+      }
+
+      // ================================================================
+      // ADMIN WITHDRAWALS
+      // ================================================================
+      async function loadAdminWithdrawals() {
+        const container = document.getElementById("withdrawalsList");
+        container.innerHTML =
+          '<div style="color:#4a5070;text-align:center;">Loading...</div>';
+        try {
+          const snapshot = await db
+            .collection("withdrawals")
+            .orderBy("createdAt", "desc")
+            .get();
+          if (snapshot.empty) {
+            container.innerHTML =
+              '<div class="no-data"><i class="fas fa-inbox"></i> No withdrawals</div>';
+            return;
+          }
+          let html = "";
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            const status = data.status || "pending";
+            const statusClass =
+              status === "pending"
+                ? "status-pending"
+                : status === "approved"
+                  ? "status-approved"
+                  : "status-rejected";
+            html += `
+                        <div class="card" style="border-left:3px solid ${status === "approved" ? "#69db7c" : status === "rejected" ? "#ff6b6b" : "#ffd43b"};">
+                            <div style="display:flex;justify-content:space-between;">
+                                <span style="color:#ccd6f6;">${data.userEmail || "N/A"}</span>
+                                <span style="color:#f7931a;font-weight:700;">$${data.amount?.toFixed(2) || "0.00"}</span>
+                            </div>
+                            <div style="font-size:12px;color:#8892b0;">
+                                ${data.currency || "USDT"} • Fee: $${(data.fee || 0).toFixed(2)} • Net: $${(data.netAmount || 0).toFixed(2)}
+                            </div>
+                            <div style="font-size:12px;color:#8892b0;">
+                                Address: ${data.address || "N/A"} • ${data.createdAt ? data.createdAt.toDate().toLocaleString() : "N/A"}
+                            </div>
+                            <div style="margin-top:6px;">
+                                <span class="${statusClass}" style="font-weight:600;">${status.toUpperCase()}</span>
+                            </div>
+                            ${status === "pending" ? `
+                                <div style="margin-top:8px;display:flex;gap:6px;">
+                                    <button class="btn btn-sm btn-success" onclick="approveWithdrawal('${doc.id}')">Approve</button>
+                                    <button class="btn btn-sm btn-danger" onclick="rejectWithdrawal('${doc.id}')">Reject</button>
+                                </div>
+                            ` : ""}
+                        </div>
+                    `;
+          });
+          container.innerHTML = html;
+        } catch (error) {
+          container.innerHTML =
+            '<div style="color:#ff6b6b;">Error loading withdrawals</div>';
+        }
+      }
+
+      async function approveWithdrawal(id) {
+        try {
+          const doc = await db.collection("withdrawals").doc(id).get();
+          const data = doc.data();
+          if (!data || !data.userId) {
+            showMessage("Withdrawal data missing user ID.", "error");
+            return;
+          }
+
+          await db.collection("withdrawals").doc(id).update({
+            status: "approved"
+          });
+
+          const userRef = db.collection("users").doc(data.userId);
+          const userDoc = await userRef.get();
+
+          if (userDoc.exists) {
+            const currentBalance = userDoc.data().balance || 0;
+            const newBalance = currentBalance - data.amount;
+            if (newBalance < 0) {
+              showMessage("User has insufficient balance.", "error");
+              return;
+            }
+            await userRef.update({
+              balance: newBalance,
+              totalWithdrawals: firebase.firestore.FieldValue.increment(data.amount)
+            });
+            await userRef.collection("transactions").add({
+              type: "withdrawal",
+              amount: -data.amount,
+              description: "Withdrawal approved",
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            showMessage("Withdrawal approved!", "success");
+          } else {
+            showMessage("User not found.", "error");
+          }
+
+          loadAdminWithdrawals();
+          loadAdminData();
+        } catch (error) {
+          showMessage("Error approving withdrawal: " + error.message, "error");
+        }
+      }
+
+      async function rejectWithdrawal(id) {
+        try {
+          await db
+            .collection("withdrawals")
+            .doc(id)
+            .update({ status: "rejected" });
+          showMessage("Withdrawal rejected.", "success");
+          loadAdminWithdrawals();
+          loadAdminData();
+        } catch (error) {
+          showMessage("Error: " + error.message, "error");
+        }
+      }
+
+      // ================================================================
+      // ADMIN REPORTS
+      // ================================================================
+      async function loadReports() {
+        const dateInput = document.getElementById("reportDate");
+        const date = dateInput.value || new Date().toISOString().split("T")[0];
+        const start = new Date(date + "T00:00:00");
+        const end = new Date(date + "T23:59:59");
+
+        try {
+          const depSnap = await db
+            .collection("deposits")
+            .where("status", "==", "approved")
+            .where("createdAt", ">=", start)
+            .where("createdAt", "<=", end)
+            .get();
+          let totalDep = 0;
+          depSnap.forEach((d) => (totalDep += d.data().amount || 0));
+
+          const withSnap = await db
+            .collection("withdrawals")
+            .where("status", "==", "approved")
+            .where("createdAt", ">=", start)
+            .where("createdAt", "<=", end)
+            .get();
+          let totalWith = 0;
+          withSnap.forEach((d) => (totalWith += d.data().amount || 0));
+
+          document.getElementById("reportDeposits").textContent =
+            "$" + totalDep.toFixed(2);
+          document.getElementById("reportWithdrawals").textContent =
+            "$" + totalWith.toFixed(2);
+          document.getElementById("reportNet").textContent =
+            "$" + (totalDep - totalWith).toFixed(2);
+
+          let html =
+            '<div style="margin-top:8px;font-weight:600;color:#ccd6f6;">Transactions</div>';
+          const allTrans = [];
+          depSnap.forEach((d) => {
+            allTrans.push({
+              type: "Deposit",
+              amount: d.data().amount || 0,
+              user: d.data().userEmail || "N/A",
+              time: d.data().createdAt?.toDate().toLocaleTimeString() || "N/A",
+            });
+          });
+          withSnap.forEach((d) => {
+            allTrans.push({
+              type: "Withdrawal",
+              amount: -(d.data().amount || 0),
+              user: d.data().userEmail || "N/A",
+              time: d.data().createdAt?.toDate().toLocaleTimeString() || "N/A",
+            });
+          });
+          allTrans.sort((a, b) => a.time.localeCompare(b.time));
+          if (allTrans.length === 0) {
+            html +=
+              '<div class="no-data" style="padding:10px;">No transactions for this day</div>';
+          } else {
+            allTrans.forEach((t) => {
+              html += `
+                            <div class="record-item">
+                                <div>
+                                    <div>${t.type}</div>
+                                    <div class="date">${t.user} • ${t.time}</div>
+                                </div>
+                                <div class="amount ${t.amount >= 0 ? "positive" : "negative"}">
+                                    ${t.amount >= 0 ? "+" : ""}$${Math.abs(t.amount).toFixed(2)}
+                                </div>
+                            </div>
+                        `;
+            });
+          }
+          document.getElementById("reportTransactions").innerHTML = html;
+        } catch (error) {
+          console.error("Error loading reports:", error);
+        }
+      }
+
+      // ================================================================
+      // DAILY PROFIT (manual trigger)
+      // ================================================================
+      async function runDailyProfit() {
+        if (!isAdmin) {
+          showMessage("Only admin can run daily profit.", "error");
+          return;
+        }
+        try {
+          const usersSnap = await db.collection("users").get();
+          let count = 0;
+          for (const doc of usersSnap.docs) {
+            const data = doc.data();
+            const balance = data.balance || 0;
+            if (balance > 0) {
+              const profit = balance * 0.01;
+              const newBalance = balance + profit;
+              await db.collection("users").doc(doc.id).update({
+                balance: newBalance,
+                lastDailyProfit:
+                  firebase.firestore.FieldValue.serverTimestamp(),
+              });
+              await db
+                .collection("users")
+                .doc(doc.id)
+                .collection("transactions")
+                .add({
+                  type: "profit",
+                  amount: profit,
+                  description: "Daily 1% profit",
+                  timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+              count++;
+            }
+          }
+          showMessage(`Daily profit credited to ${count} users!`, "success");
+          loadAdminData();
+          if (currentUser) {
+            await loadUserData(currentUser.uid);
+            updateUI();
+          }
+        } catch (error) {
+          showMessage("Error running daily profit: " + error.message, "error");
+        }
+      }
+
+      // ================================================================
+      // MESSAGE HELPER
+      // ================================================================
+      function showMessage(text, type) {
+        messageEl.textContent = text;
+        messageEl.className = `message ${type}`;
+      }
+
+      function clearMessage() {
+        messageEl.className = "message";
+        messageEl.textContent = "";
+      }
+
+      // ================================================================
+      // INIT: Check URL for invite code
+      // ================================================================
+      (function () {
+        const params = new URLSearchParams(window.location.search);
+        const ref = params.get("ref");
+        if (ref) {
+          document.getElementById("inviteCode").value = ref;
+          setTimeout(() => {
+            showMessage("Invitation code auto-filled!", "success");
+            setTimeout(clearMessage, 2000);
+          }, 500);
+        }
+      })();
+
+      console.log("BTC Cloud Mining Platform loaded.");
+      console.log("Admin email:", ADMIN_EMAIL);
+      console.log("BEP20 Address:", BEP20_ADDRESS);
+      console.log("TRC20 Address:", TRC20_ADDRESS);
+    </script>
+  </body>
+</html>

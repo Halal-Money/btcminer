@@ -9,21 +9,21 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkJUQyBDbG91ZCBNaW5pbmciLAogICJzaG9ydF9uYW1lIjogIkJUQyBNaW5pbmciLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzBiMGUxYSIsCiAgInRoZW1lX2NvbG9yIjogIiNmNzkzMWEiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsJTNDc3ZnJTIweG1sbnMlM0QlMjJodHRwJTNBJTJGJTJGd3d3LnczLm9yZyUyRjIwMDAlMkZzdmclMjIlMjB2aWV3Qm94JTNEJTIyMCUyMDAlMjA1MTIlMjA1MTIlMjIlM0UlM0NyZWN0JTIwd2lkdGglM0QlMjI1MTIlMjIlMjBoZWlnaHQlM0QlMjI1MTIlMjIlMjByeCUzRCUyMjUwJTIyJTIwZmlsbCUzRCUyMiUyMzBmMTMxZSUyMiUyRiUzRSUzQ3RleHQlMjB4JTNEJTIyMjU2JTIyJTIweSUzRCUyMjI3MCUyMiUyMGZvbnQtc2l6ZSUzRCUyMjI4MCUyMiUyMGZvbnQtZmFtaWx5JTNEJTIyQXJpYWwlMkMlMjBIZWx2ZXRpY2ElMkMlMjBzYW5zLXNlcmlmJTIyJTIwZmlsbCUzRCUyMiUyM2Y3OTMxYSUyMiUyMHRleHQtYW5jaG9yJTNEJTIybWlkZGxlJTIyJTIwZG9taW5hbnQtYmFzZWxpbmUlM0QlMjJjZW50cmFsJTIyJTNFJUMyJUIyJUMyJUIyJTNDJTJGdGV4dCUzRSUzQyUyRnN2ZyUzRQoiLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiLAogICAgICAicHVycG9zZSI6ICJhbnkgbWFzayBhbnlsYW5nIgogICAgfQogIF0KfQ==" />
 
-    <!-- Firebase v10 (Modular) - Faster & Smaller -->
+    <!-- Firebase v10 (Modular) - Fast & Reliable CDN -->
     <script type="importmap">
         {
             "imports": {
-                "firebase/app": "https://unpkg.com/firebase@10.12.0/app/dist/esm/index.mjs",
-                "firebase/auth": "https://unpkg.com/firebase@10.12.0/auth/dist/esm/index.mjs",
-                "firebase/firestore": "https://unpkg.com/firebase@10.12.0/firestore/dist/esm/index.mjs"
+                "firebase/app": "https://cdn.jsdelivr.net/npm/firebase@10.12.0/app/dist/esm/index.mjs",
+                "firebase/auth": "https://cdn.jsdelivr.net/npm/firebase@10.12.0/auth/dist/esm/index.mjs",
+                "firebase/firestore": "https://cdn.jsdelivr.net/npm/firebase@10.12.0/firestore/dist/esm/index.mjs"
             }
         }
     </script>
 
-    <!-- QR Code Library (defer for faster load) -->
+    <!-- QR Code Library (defer) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
 
-    <!-- Font Awesome (lighter version) -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.4.0/css/all.css" />
 
     <style>
@@ -522,7 +522,7 @@
                 </div>
 
                 <!-- Mining Button -->
-                <button class="mine-btn" id="mineBtn" onclick="toggleMining()" disabled>
+                <button class="mine-btn" id="mineBtn" onclick="window.toggleMining()" disabled>
                     <i class="fas fa-hard-hat"></i>
                     <span id="mineBtnText">Start Mining</span>
                     <span class="mining-progress" id="mineProgress"></span>
@@ -532,10 +532,10 @@
                 </div>
 
                 <div class="grid-4" style="margin-top:16px;">
-                    <div class="action-btn" onclick="navigateTo('recharge')"><i class="fas fa-arrow-up"></i> Recharge</div>
-                    <div class="action-btn" onclick="navigateTo('withdraw')"><i class="fas fa-arrow-down"></i> Withdraw</div>
-                    <div class="action-btn" id="appInstallBtn" onclick="triggerInstall()"><i class="fas fa-download"></i> App</div>
-                    <div class="action-btn" onclick="navigateTo('me')"><i class="fas fa-building"></i> Company</div>
+                    <div class="action-btn" onclick="window.navigateTo('recharge')"><i class="fas fa-arrow-up"></i> Recharge</div>
+                    <div class="action-btn" onclick="window.navigateTo('withdraw')"><i class="fas fa-arrow-down"></i> Withdraw</div>
+                    <div class="action-btn" id="appInstallBtn" onclick="window.triggerInstall()"><i class="fas fa-download"></i> App</div>
+                    <div class="action-btn" onclick="window.navigateTo('me')"><i class="fas fa-building"></i> Company</div>
                 </div>
 
                 <!-- PWA Install Instructions -->
@@ -551,7 +551,7 @@
                 <div class="card" style="margin-top:12px;">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
                         <span style="color:#ffffff;font-weight:600;"><i class="fas fa-users" style="color:#f7931a;"></i> Invite Friends</span>
-                        <span style="color:#f7931a;font-size:12px;cursor:pointer;" onclick="navigateTo('team')">View Team →</span>
+                        <span style="color:#f7931a;font-size:12px;cursor:pointer;" onclick="window.navigateTo('team')">View Team →</span>
                     </div>
                     <div style="margin-top:10px;color:#8892b0;font-size:13px;">3-TIER REFERRAL COMMISSION</div>
                     <div style="display:flex;justify-content:space-between;margin-top:8px;text-align:center;">
@@ -564,7 +564,7 @@
 
                 <!-- Admin Quick Access -->
                 <div id="adminQuick" style="display:none;margin-top:12px;">
-                    <button class="btn btn-primary" onclick="navigateTo('admin')"><i class="fas fa-crown"></i> Admin Panel</button>
+                    <button class="btn btn-primary" onclick="window.navigateTo('admin')"><i class="fas fa-crown"></i> Admin Panel</button>
                 </div>
             </div>
 
@@ -590,7 +590,7 @@
                         <div><span style="color:#8892b0;font-size:13px;">Percentage</span><br><span style="color:#f7931a;font-size:20px;font-weight:700;">1%</span></div>
                         <div><span style="color:#8892b0;font-size:13px;">Price</span><br><span style="color:#ffffff;font-size:18px;font-weight:700;">100 USDT</span></div>
                     </div>
-                    <button class="btn btn-primary" style="margin-top:12px;" id="buyNowBtn" onclick="showBuyNow()">
+                    <button class="btn btn-primary" style="margin-top:12px;" id="buyNowBtn" onclick="window.showBuyNow()">
                         <i class="fas fa-shopping-cart"></i> Buy Now
                     </button>
                     <div id="buySuccessMsg" style="display:none;margin-top:10px;text-align:center;color:#69db7c;font-weight:600;">
@@ -613,12 +613,12 @@
                     <div style="color:#8892b0;font-size:13px;">Invitation code</div>
                     <div class="invite-box" style="margin-top:4px;">
                         <input type="text" id="teamInviteCode" value="Loading..." readonly />
-                        <button class="copy-btn" onclick="copyText('teamInviteCode')"><i class="fas fa-copy"></i></button>
+                        <button class="copy-btn" onclick="window.copyText('teamInviteCode')"><i class="fas fa-copy"></i></button>
                     </div>
                     <div style="margin-top:8px;color:#8892b0;font-size:12px;">Share your referral link and start earning</div>
                     <div class="invite-box" style="margin-top:4px;">
                         <input type="text" id="teamReferralLink" value="Loading..." readonly style="font-size:12px;" />
-                        <button class="copy-btn" onclick="copyText('teamReferralLink')"><i class="fas fa-copy"></i></button>
+                        <button class="copy-btn" onclick="window.copyText('teamReferralLink')"><i class="fas fa-copy"></i></button>
                     </div>
                 </div>
 
@@ -659,7 +659,7 @@
                     </div>
                 </div>
 
-                <button class="btn btn-secondary" onclick="showTeamDetails()">
+                <button class="btn btn-secondary" onclick="window.showTeamDetails()">
                     <i class="fas fa-list-ul"></i> Details
                 </button>
             </div>
@@ -693,27 +693,27 @@
                 </div>
 
                 <div style="margin-top:8px;">
-                    <div class="card" onclick="navigateTo('account')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+                    <div class="card" onclick="window.navigateTo('account')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
                         <span style="color:#ccd6f6;"><i class="fas fa-user" style="color:#f7931a;width:20px;"></i> Account</span>
                         <i class="fas fa-chevron-right" style="color:#4a5070;"></i>
                     </div>
-                    <div class="card" onclick="navigateTo('recharge')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+                    <div class="card" onclick="window.navigateTo('recharge')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
                         <span style="color:#ccd6f6;"><i class="fas fa-arrow-up" style="color:#f7931a;width:20px;"></i> Recharge</span>
                         <i class="fas fa-chevron-right" style="color:#4a5070;"></i>
                     </div>
-                    <div class="card" onclick="navigateTo('withdraw')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+                    <div class="card" onclick="window.navigateTo('withdraw')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
                         <span style="color:#ccd6f6;"><i class="fas fa-arrow-down" style="color:#f7931a;width:20px;"></i> Withdraw</span>
                         <i class="fas fa-chevron-right" style="color:#4a5070;"></i>
                     </div>
-                    <div class="card" onclick="navigateTo('records')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+                    <div class="card" onclick="window.navigateTo('records')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
                         <span style="color:#ccd6f6;"><i class="fas fa-file-invoice" style="color:#f7931a;width:20px;"></i> Financial records</span>
                         <i class="fas fa-chevron-right" style="color:#4a5070;"></i>
                     </div>
-                    <div class="card" onclick="navigateTo('changepw')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+                    <div class="card" onclick="window.navigateTo('changepw')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
                         <span style="color:#ccd6f6;"><i class="fas fa-key" style="color:#f7931a;width:20px;"></i> Change Password</span>
                         <i class="fas fa-chevron-right" style="color:#4a5070;"></i>
                     </div>
-                    <div class="card" onclick="logoutUser()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-color:#ff6b6b;">
+                    <div class="card" onclick="window.logoutUser()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-color:#ff6b6b;">
                         <span style="color:#ff6b6b;"><i class="fas fa-sign-out-alt" style="width:20px;"></i> Sign out</span>
                         <i class="fas fa-chevron-right" style="color:#4a5070;"></i>
                     </div>
@@ -733,8 +733,8 @@
                 </div>
 
                 <div class="account-tabs">
-                    <button class="active" id="accDepositsTab" onclick="switchAccountTab('deposits')">Deposits</button>
-                    <button id="accWithdrawalsTab" onclick="switchAccountTab('withdrawals')">Withdrawals</button>
+                    <button class="active" id="accDepositsTab" onclick="window.switchAccountTab('deposits')">Deposits</button>
+                    <button id="accWithdrawalsTab" onclick="window.switchAccountTab('withdrawals')">Withdrawals</button>
                 </div>
 
                 <div id="accountContent">
@@ -750,15 +750,15 @@
                     <span style="color:#8892b0;font-size:14px;">Recharge</span>
                 </div>
                 <div style="display:flex;gap:8px;margin-bottom:16px;">
-                    <button class="btn btn-sm btn-primary" style="flex:1;" id="rechargeBEP20Btn" onclick="switchRecharge('BEP20')">BEP20-USDT</button>
-                    <button class="btn btn-sm btn-secondary" style="flex:1;" id="rechargeTRC20Btn" onclick="switchRecharge('TRC20')">TRC20-USDT</button>
+                    <button class="btn btn-sm btn-primary" style="flex:1;" id="rechargeBEP20Btn" onclick="window.switchRecharge('BEP20')">BEP20-USDT</button>
+                    <button class="btn btn-sm btn-secondary" style="flex:1;" id="rechargeTRC20Btn" onclick="window.switchRecharge('TRC20')">TRC20-USDT</button>
                 </div>
                 <div class="card" id="rechargeCard">
                     <div style="color:#ffffff;font-size:16px;font-weight:600;" id="rechargeCurrency">BEP20-USDT</div>
                     <div style="color:#8892b0;font-size:13px;margin:4px 0 8px;">Address</div>
                     <div class="invite-box">
                         <input type="text" id="rechargeAddress" readonly value="0x95c535EA4F83eE5ECa94fC689048d0BE56C4c60d" style="font-size:12px;" />
-                        <button class="copy-btn" onclick="copyText('rechargeAddress')"><i class="fas fa-copy"></i></button>
+                        <button class="copy-btn" onclick="window.copyText('rechargeAddress')"><i class="fas fa-copy"></i></button>
                     </div>
                     <div id="qrcode-container"></div>
                     <div style="margin-top:10px;font-size:13px;color:#8892b0;">
@@ -776,7 +776,7 @@
                             <label for="depositTxid"><i class="fas fa-hashtag"></i> Transaction ID (TXID)</label>
                             <input type="text" id="depositTxid" placeholder="Paste your transaction hash" />
                         </div>
-                        <button class="btn btn-success" id="submitDepositBtn" onclick="submitDeposit()">
+                        <button class="btn btn-success" id="submitDepositBtn" onclick="window.submitDeposit()">
                             <i class="fas fa-check-circle"></i> Submit Deposit Request
                         </button>
                         <div id="depositStatusMsg" style="display:none;margin-top:10px;text-align:center;color:#ffd43b;font-weight:500;">
@@ -803,8 +803,8 @@
                 <div class="card">
                     <div style="color:#ccd6f6;font-weight:600;margin-bottom:8px;">Withdrawal method</div>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                        <button class="btn btn-sm btn-primary" id="withdrawBEP20" onclick="switchWithdraw('BEP20')">BEP20-USDT</button>
-                        <button class="btn btn-sm btn-secondary" id="withdrawTRC20" onclick="switchWithdraw('TRC20')">TRC20-USDT</button>
+                        <button class="btn btn-sm btn-primary" id="withdrawBEP20" onclick="window.switchWithdraw('BEP20')">BEP20-USDT</button>
+                        <button class="btn btn-sm btn-secondary" id="withdrawTRC20" onclick="window.switchWithdraw('TRC20')">TRC20-USDT</button>
                     </div>
                     <div style="margin-top:12px;">
                         <div class="form-group">
@@ -824,7 +824,7 @@
                             <span style="color:#69db7c;font-weight:700;" id="actuallyReceived">0.00 USDT</span>
                         </div>
                         <div style="font-size:12px;color:#4a5070;margin-top:4px;">* 10% withdrawal fee will be deducted</div>
-                        <button class="btn btn-primary" style="margin-top:12px;" onclick="submitWithdraw()">
+                        <button class="btn btn-primary" style="margin-top:12px;" onclick="window.submitWithdraw()">
                             <i class="fas fa-check"></i> Confirm
                         </button>
                     </div>
@@ -848,8 +848,8 @@
                     <span style="color:#8892b0;font-size:14px;">Financial Records</span>
                 </div>
                 <div class="record-tabs">
-                    <button class="active" id="recordBasicTab" onclick="switchRecordTab('basic')">Basic account</button>
-                    <button id="recordWithdrawTab" onclick="switchRecordTab('withdraw')">Withdrawal account</button>
+                    <button class="active" id="recordBasicTab" onclick="window.switchRecordTab('basic')">Basic account</button>
+                    <button id="recordWithdrawTab" onclick="window.switchRecordTab('withdraw')">Withdrawal account</button>
                 </div>
                 <div id="recordList"><div class="no-data"><i class="fas fa-database"></i> No data</div></div>
             </div>
@@ -873,7 +873,7 @@
                         <label>Re-enter new password</label>
                         <input type="password" id="confirmNewPassword" placeholder="Re-enter new password" />
                     </div>
-                    <button class="btn btn-primary" id="changePwBtn" onclick="changePassword()">
+                    <button class="btn btn-primary" id="changePwBtn" onclick="window.changePassword()">
                         <i class="fas fa-check"></i> Confirm
                     </button>
                     <div id="pwSuccessMsg" style="display:none;margin-top:12px;text-align:center;">
@@ -890,11 +890,11 @@
                 </div>
 
                 <div class="admin-tabs" id="adminTabs">
-                    <button class="active" data-tab="dashboard" onclick="switchAdminTab('dashboard')">Dashboard</button>
-                    <button data-tab="users" onclick="switchAdminTab('users')">Users</button>
-                    <button data-tab="deposits" onclick="switchAdminTab('deposits')">Deposits</button>
-                    <button data-tab="withdrawals" onclick="switchAdminTab('withdrawals')">Withdrawals</button>
-                    <button data-tab="reports" onclick="switchAdminTab('reports')">Reports</button>
+                    <button class="active" data-tab="dashboard" onclick="window.switchAdminTab('dashboard')">Dashboard</button>
+                    <button data-tab="users" onclick="window.switchAdminTab('users')">Users</button>
+                    <button data-tab="deposits" onclick="window.switchAdminTab('deposits')">Deposits</button>
+                    <button data-tab="withdrawals" onclick="window.switchAdminTab('withdrawals')">Withdrawals</button>
+                    <button data-tab="reports" onclick="window.switchAdminTab('reports')">Reports</button>
                 </div>
 
                 <!-- Admin Dashboard -->
@@ -910,14 +910,14 @@
                         <div style="color:#f7931a;font-size:28px;font-weight:700;" id="adminBalance">$1,000,000.00</div>
                         <div style="font-size:12px;color:#4a5070;">Initial balance for platform operations</div>
                     </div>
-                    <button class="btn btn-secondary" onclick="runDailyProfit()" style="margin-top:8px;">
+                    <button class="btn btn-secondary" onclick="window.runDailyProfit()" style="margin-top:8px;">
                         <i class="fas fa-clock"></i> Run Daily Profit (Manual)
                     </button>
                 </div>
 
                 <!-- Admin Users -->
                 <div id="adminUsers" class="admin-content" style="display:none;">
-                    <button class="btn btn-primary btn-sm" onclick="refreshUsers()" style="width:auto;margin-bottom:10px;">
+                    <button class="btn btn-primary btn-sm" onclick="window.refreshUsers()" style="width:auto;margin-bottom:10px;">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
                     <div id="usersTableContainer" style="overflow-x:auto;">
@@ -942,7 +942,7 @@
                 <div id="adminReports" class="admin-content" style="display:none;">
                     <div style="display:flex;gap:8px;margin-bottom:12px;">
                         <input type="date" id="reportDate" style="flex:1;padding:8px;background:#1e2338;border:1px solid #2a3050;border-radius:8px;color:#fff;" />
-                        <button class="btn btn-primary btn-sm" onclick="loadReports()">View</button>
+                        <button class="btn btn-primary btn-sm" onclick="window.loadReports()">View</button>
                     </div>
                     <div id="reportContent">
                         <div class="card"><div class="card-title">Daily Deposits</div><div id="reportDeposits">$0.00</div></div>
@@ -959,10 +959,10 @@
         <!-- BOTTOM NAVIGATION -->
         <!-- ========================================================= -->
         <div class="bottom-nav" id="bottomNav" style="display:none;">
-            <button class="nav-item active" data-page="home" onclick="navigateTo('home')"><i class="fas fa-home"></i> Home</button>
-            <button class="nav-item" data-page="project" onclick="navigateTo('project')"><i class="fas fa-project-diagram"></i> Project</button>
-            <button class="nav-item" data-page="team" onclick="navigateTo('team')"><i class="fas fa-users"></i> Team</button>
-            <button class="nav-item" data-page="me" onclick="navigateTo('me')"><i class="fas fa-user"></i> Me</button>
+            <button class="nav-item active" data-page="home" onclick="window.navigateTo('home')"><i class="fas fa-home"></i> Home</button>
+            <button class="nav-item" data-page="project" onclick="window.navigateTo('project')"><i class="fas fa-project-diagram"></i> Project</button>
+            <button class="nav-item" data-page="team" onclick="window.navigateTo('team')"><i class="fas fa-users"></i> Team</button>
+            <button class="nav-item" data-page="me" onclick="window.navigateTo('me')"><i class="fas fa-user"></i> Me</button>
         </div>
 
         <!-- ========================================================= -->
@@ -971,19 +971,19 @@
         <!-- Generic Modal -->
         <div class="modal-overlay" id="genericModal">
             <div class="modal-content">
-                <div class="modal-header"><span id="modalTitle">Title</span><button class="modal-close" onclick="closeModal()">&times;</button></div>
+                <div class="modal-header"><span id="modalTitle">Title</span><button class="modal-close" onclick="window.closeModal()">&times;</button></div>
                 <div id="modalBody"></div>
             </div>
         </div>
 
         <!-- App Install Popup -->
         <div class="app-install-popup" id="appInstallPopup">
-            <button class="close-popup" onclick="closeAppInstall()">&times;</button>
+            <button class="close-popup" onclick="window.closeAppInstall()">&times;</button>
             <h3><i class="fas fa-download" style="color:#f7931a;"></i> Install App</h3>
             <p>Install BTC Cloud Mining on your device for faster access and better experience.</p>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                <button class="btn btn-primary" id="installAppBtn" onclick="installPWA()"><i class="fas fa-download"></i> Install App</button>
-                <button class="btn btn-secondary" onclick="closeAppInstall()">Later</button>
+                <button class="btn btn-primary" id="installAppBtn" onclick="window.installPWA()"><i class="fas fa-download"></i> Install App</button>
+                <button class="btn btn-secondary" onclick="window.closeAppInstall()">Later</button>
             </div>
             <div style="margin-top:12px;font-size:12px;color:#4a5070;text-align:center;">
                 <i class="fas fa-info-circle"></i> Or use "Add to Home Screen" in your browser
@@ -993,13 +993,13 @@
         <!-- Add/Deduct Balance Modal -->
         <div class="modal-overlay" id="balanceModal">
             <div class="modal-content">
-                <div class="modal-header"><span id="balanceModalTitle">Adjust Balance</span><button class="modal-close" onclick="closeBalanceModal()">&times;</button></div>
+                <div class="modal-header"><span id="balanceModalTitle">Adjust Balance</span><button class="modal-close" onclick="window.closeBalanceModal()">&times;</button></div>
                 <div id="balanceModalBody">
                     <div class="form-group"><label>User</label><input type="text" id="balanceUserEmail" readonly style="color:#f7931a;" /></div>
                     <div class="form-group"><label>Current Balance</label><input type="text" id="balanceCurrent" readonly /></div>
                     <div class="form-group"><label>Amount (positive to add, negative to deduct)</label><input type="number" id="balanceAmount" placeholder="e.g., 10 or -5" step="0.001" /></div>
                     <div class="form-group"><label>Reason</label><input type="text" id="balanceReason" placeholder="e.g., Bonus, Correction" /></div>
-                    <button class="btn btn-primary" onclick="submitBalanceAdjust()">Submit</button>
+                    <button class="btn btn-primary" onclick="window.submitBalanceAdjust()">Submit</button>
                 </div>
             </div>
         </div>
@@ -1007,7 +1007,7 @@
         <!-- Team Details Modal -->
         <div class="modal-overlay" id="teamDetailsModal">
             <div class="modal-content">
-                <div class="modal-header"><span>Team Details</span><button class="modal-close" onclick="closeTeamDetails()">&times;</button></div>
+                <div class="modal-header"><span>Team Details</span><button class="modal-close" onclick="window.closeTeamDetails()">&times;</button></div>
                 <div id="teamDetailsBody"></div>
             </div>
         </div>
@@ -1015,20 +1015,20 @@
         <!-- Buy Now Modal -->
         <div class="modal-overlay" id="buyModal">
             <div class="modal-content">
-                <div class="modal-header"><span>Buy BTC Miner 1</span><button class="modal-close" onclick="closeModal()">&times;</button></div>
+                <div class="modal-header"><span>Buy BTC Miner 1</span><button class="modal-close" onclick="window.closeModal()">&times;</button></div>
                 <div id="buyBody">
                     <div class="form-group"><label>Price (100 USDT)</label><input type="number" id="buyAmount" placeholder="Enter 100" step="1" /></div>
                     <div style="color:#8892b0;font-size:13px;margin-bottom:12px;">Daily profit: 1.00 USDT (approx)</div>
-                    <button class="btn btn-primary" onclick="confirmBuy()">Confirm Purchase</button>
+                    <button class="btn btn-primary" onclick="window.confirmBuy()">Confirm Purchase</button>
                 </div>
             </div>
         </div>
 
         <!-- Deposit Approval Modal -->
-        <div class="modal-overlay" id="depositModal"><div class="modal-content"><div class="modal-header"><span>Deposit Details</span><button class="modal-close" onclick="closeModal()">&times;</button></div><div id="depositModalBody"></div></div></div>
+        <div class="modal-overlay" id="depositModal"><div class="modal-content"><div class="modal-header"><span>Deposit Details</span><button class="modal-close" onclick="window.closeModal()">&times;</button></div><div id="depositModalBody"></div></div></div>
 
         <!-- Withdrawal Approval Modal -->
-        <div class="modal-overlay" id="withdrawModal"><div class="modal-content"><div class="modal-header"><span>Withdrawal Details</span><button class="modal-close" onclick="closeModal()">&times;</button></div><div id="withdrawModalBody"></div></div></div>
+        <div class="modal-overlay" id="withdrawModal"><div class="modal-content"><div class="modal-header"><span>Withdrawal Details</span><button class="modal-close" onclick="window.closeModal()">&times;</button></div><div id="withdrawModalBody"></div></div></div>
 
     </div><!-- end app -->
 
@@ -1055,6 +1055,7 @@
             appId: "1:61193874419:web:19265ed690bea89d3e4086"
         };
 
+        // Initialize
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -1080,25 +1081,28 @@
         let miningTotalMined = 0;
         let deferredPrompt = null;
         let balanceTargetUserId = null;
+        let rechargeCurrency = 'BEP20';
+        let withdrawCurrency = 'BEP20';
 
-        // DOM refs (will be set after login)
+        // DOM refs
         const authPages = document.getElementById('authPages');
         const mainApp = document.getElementById('mainApp');
         const bottomNav = document.getElementById('bottomNav');
         const messageEl = document.getElementById('message');
 
         // ==============================================================
-        // DOM Helpers
+        // DOM Helpers (exposed to window)
         // ==============================================================
-        function showMessage(text, type) {
+        window.showMessage = function(text, type) {
             messageEl.textContent = text;
             messageEl.className = `message ${type}`;
-        }
-        function clearMessage() {
+        };
+        window.clearMessage = function() {
             messageEl.className = 'message';
             messageEl.textContent = '';
-        }
-        function navigateTo(page) {
+        };
+
+        window.navigateTo = function(page) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const target = document.getElementById('page-' + page);
             if (target) target.classList.add('active');
@@ -1111,7 +1115,39 @@
             if (page === 'team') loadTeamStats();
             if (page === 'project') loadAvailablePackages();
             if (page === 'account') loadAccountData();
-        }
+        };
+
+        window.copyText = function(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const val = el.value || el.textContent;
+            navigator.clipboard.writeText(val).then(() => {
+                window.showMessage('Copied!', 'success');
+                setTimeout(window.clearMessage, 2000);
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = val;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                window.showMessage('Copied!', 'success');
+                setTimeout(window.clearMessage, 2000);
+            });
+        };
+
+        window.closeModal = function() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
+        };
+        window.closeBalanceModal = function() {
+            document.getElementById('balanceModal').classList.remove('show');
+        };
+        window.closeTeamDetails = function() {
+            document.getElementById('teamDetailsModal').classList.remove('show');
+        };
+        window.closeAppInstall = function() {
+            document.getElementById('appInstallPopup').classList.remove('show');
+        };
 
         // ==============================================================
         // AUTH FUNCTIONS
@@ -1145,118 +1181,125 @@
                 document.getElementById('phoneGroup').style.display = 'none';
                 document.getElementById('emailGroup').style.display = 'block';
             }
-            clearMessage();
+            window.clearMessage();
         };
 
-        document.getElementById('toggleText').addEventListener('click', window.toggleAuthMode);
+        // Attach event listeners after DOM ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle link
+            document.getElementById('toggleText').addEventListener('click', window.toggleAuthMode);
 
-        document.getElementById('registerEmailBtn').addEventListener('click', function() {
-            this.classList.add('active');
-            document.getElementById('registerPhoneBtn').classList.remove('active');
-            document.getElementById('emailGroup').style.display = 'block';
-            document.getElementById('phoneGroup').style.display = 'none';
-            document.getElementById('phoneInput').disabled = true;
-            clearMessage();
-        });
-
-        document.getElementById('registerPhoneBtn').addEventListener('click', function() {
-            this.classList.add('active');
-            document.getElementById('registerEmailBtn').classList.remove('active');
-            const isLogin = document.getElementById('formTitle').textContent === 'Sign In';
-            if (!isLogin) {
-                document.getElementById('phoneGroup').style.display = 'block';
-                document.getElementById('emailGroup').style.display = 'none';
-                document.getElementById('phoneInput').disabled = false;
-                showMessage('⚠️ Phone registration is not supported in your country. Please use Email.', 'error');
-            } else {
-                document.getElementById('phoneGroup').style.display = 'none';
+            // Register buttons
+            document.getElementById('registerEmailBtn').addEventListener('click', function() {
+                this.classList.add('active');
+                document.getElementById('registerPhoneBtn').classList.remove('active');
                 document.getElementById('emailGroup').style.display = 'block';
-                showMessage('Please use Email to sign in.', 'error');
-            }
-        });
+                document.getElementById('phoneGroup').style.display = 'none';
+                document.getElementById('phoneInput').disabled = true;
+                window.clearMessage();
+            });
 
-        document.getElementById('submitBtn').addEventListener('click', async function() {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const repassword = document.getElementById('repassword').value;
-            const invite = document.getElementById('inviteCode').value.trim();
-            const isLogin = document.getElementById('formTitle').textContent === 'Sign In';
+            document.getElementById('registerPhoneBtn').addEventListener('click', function() {
+                this.classList.add('active');
+                document.getElementById('registerEmailBtn').classList.remove('active');
+                const isLogin = document.getElementById('formTitle').textContent === 'Sign In';
+                if (!isLogin) {
+                    document.getElementById('phoneGroup').style.display = 'block';
+                    document.getElementById('emailGroup').style.display = 'none';
+                    document.getElementById('phoneInput').disabled = false;
+                    window.showMessage('⚠️ Phone registration is not supported in your country. Please use Email.', 'error');
+                } else {
+                    document.getElementById('phoneGroup').style.display = 'none';
+                    document.getElementById('emailGroup').style.display = 'block';
+                    window.showMessage('Please use Email to sign in.', 'error');
+                }
+            });
 
-            if (!email || !password) {
-                showMessage('Please fill in all required fields.', 'error');
-                return;
-            }
+            // Submit button
+            document.getElementById('submitBtn').addEventListener('click', async function() {
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const repassword = document.getElementById('repassword').value;
+                const invite = document.getElementById('inviteCode').value.trim();
+                const isLogin = document.getElementById('formTitle').textContent === 'Sign In';
 
-            if (!isLogin) {
-                if (password.length < 6) {
-                    showMessage('Password must be at least 6 characters.', 'error');
+                if (!email || !password) {
+                    window.showMessage('Please fill in all required fields.', 'error');
                     return;
                 }
-                if (password !== repassword) {
-                    showMessage('Passwords do not match.', 'error');
-                    return;
-                }
-                try {
-                    const cred = await createUserWithEmailAndPassword(auth, email, password);
-                    const inviteCode = await generateInviteCode();
-                    let referrerId = null;
-                    if (invite) {
-                        const q = query(collection(db, 'users'), where('inviteCode', '==', invite));
-                        const snap = await getDocs(q);
-                        if (!snap.empty) referrerId = snap.docs[0].id;
+
+                if (!isLogin) {
+                    if (password.length < 6) {
+                        window.showMessage('Password must be at least 6 characters.', 'error');
+                        return;
                     }
-                    await setDoc(doc(db, 'users', cred.user.uid), {
-                        email: email,
-                        balance: 0,
-                        inviteCode: inviteCode,
-                        referrer: referrerId || null,
-                        hasMiner: false,
-                        createdAt: serverTimestamp(),
-                        totalDeposits: 0,
-                        totalWithdrawals: 0,
-                        lastDailyProfit: null,
-                        isAdmin: email === ADMIN_EMAIL
-                    });
-                    if (referrerId) {
-                        await addDoc(collection(db, 'users', referrerId, 'team'), {
-                            userId: cred.user.uid,
+                    if (password !== repassword) {
+                        window.showMessage('Passwords do not match.', 'error');
+                        return;
+                    }
+                    try {
+                        const cred = await createUserWithEmailAndPassword(auth, email, password);
+                        const inviteCode = await generateInviteCode();
+                        let referrerId = null;
+                        if (invite) {
+                            const q = query(collection(db, 'users'), where('inviteCode', '==', invite));
+                            const snap = await getDocs(q);
+                            if (!snap.empty) referrerId = snap.docs[0].id;
+                        }
+                        await setDoc(doc(db, 'users', cred.user.uid), {
                             email: email,
-                            level: 1,
-                            joinedAt: serverTimestamp()
+                            balance: 0,
+                            inviteCode: inviteCode,
+                            referrer: referrerId || null,
+                            hasMiner: false,
+                            createdAt: serverTimestamp(),
+                            totalDeposits: 0,
+                            totalWithdrawals: 0,
+                            lastDailyProfit: null,
+                            isAdmin: email === ADMIN_EMAIL
                         });
+                        if (referrerId) {
+                            await addDoc(collection(db, 'users', referrerId, 'team'), {
+                                userId: cred.user.uid,
+                                email: email,
+                                level: 1,
+                                joinedAt: serverTimestamp()
+                            });
+                        }
+                        window.showMessage('Account created successfully!', 'success');
+                    } catch (error) {
+                        window.showMessage(error.message, 'error');
                     }
-                    showMessage('Account created successfully!', 'success');
-                } catch (error) {
-                    showMessage(error.message, 'error');
+                } else {
+                    try {
+                        await signInWithEmailAndPassword(auth, email, password);
+                        window.showMessage('Welcome back!', 'success');
+                    } catch (error) {
+                        window.showMessage(error.message, 'error');
+                    }
                 }
-            } else {
-                try {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    showMessage('Welcome back!', 'success');
-                } catch (error) {
-                    showMessage(error.message, 'error');
-                }
-            }
-        });
+            });
 
-        document.getElementById('copyInviteBtn').addEventListener('click', async function() {
-            try {
-                const text = await navigator.clipboard.readText();
-                document.getElementById('inviteCode').value = text.trim();
-                showMessage('Pasted from clipboard!', 'success');
-                setTimeout(clearMessage, 2000);
-            } catch {
-                const pasted = prompt('Paste the invitation code here:');
-                if (pasted) {
-                    document.getElementById('inviteCode').value = pasted.trim();
-                    showMessage('Code set!', 'success');
-                    setTimeout(clearMessage, 2000);
+            // Copy invite from clipboard
+            document.getElementById('copyInviteBtn').addEventListener('click', async function() {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    document.getElementById('inviteCode').value = text.trim();
+                    window.showMessage('Pasted from clipboard!', 'success');
+                    setTimeout(window.clearMessage, 2000);
+                } catch {
+                    const pasted = prompt('Paste the invitation code here:');
+                    if (pasted) {
+                        document.getElementById('inviteCode').value = pasted.trim();
+                        window.showMessage('Code set!', 'success');
+                        setTimeout(window.clearMessage, 2000);
+                    }
                 }
-            }
+            });
         });
 
         // ==============================================================
-        // AUTH STATE LISTENER (v10)
+        // AUTH STATE LISTENER
         // ==============================================================
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -1274,7 +1317,7 @@
                     showAnnouncement();
                     sessionStorage.setItem('announcementShown', 'true');
                 }
-                navigateTo('home');
+                window.navigateTo('home');
                 await loadAvailablePackages();
                 await resumeMining();
                 updateMiningButtonState();
@@ -1296,7 +1339,7 @@
                 document.getElementById('password').value = '';
                 document.getElementById('repassword').value = '';
                 document.getElementById('inviteCode').value = '';
-                clearMessage();
+                window.clearMessage();
                 if (miningInterval) {
                     clearInterval(miningInterval);
                     miningInterval = null;
@@ -1395,18 +1438,18 @@
         window.toggleMining = async function() {
             if (!currentUser) return;
             if (!currentUserData || !currentUserData.hasMiner) {
-                showMessage('You need to buy a miner package first!', 'error');
+                window.showMessage('You need to buy a miner package first!', 'error');
                 return;
             }
             if (miningActive) {
-                showMessage('Mining is already active!', 'error');
+                window.showMessage('Mining is already active!', 'error');
                 return;
             }
             if (currentUserData.miningStart) {
                 const start = currentUserData.miningStart.toDate ? currentUserData.miningStart.toDate() : new Date(currentUserData.miningStart);
                 const elapsed = (Date.now() - start.getTime()) / 1000;
                 if (elapsed < MINING_DURATION) {
-                    showMessage('You have already started mining today. Wait for 24 hours.', 'error');
+                    window.showMessage('You have already started mining today. Wait for 24 hours.', 'error');
                     return;
                 }
             }
@@ -1425,9 +1468,9 @@
                 miningTotalMined = 0;
                 startMiningInterval();
                 updateMiningUI();
-                showMessage('Mining started! You will earn 1 USDT over 24 hours.', 'success');
+                window.showMessage('Mining started! You will earn 1 USDT over 24 hours.', 'success');
             } catch (error) {
-                showMessage('Error starting mining: ' + error.message, 'error');
+                window.showMessage('Error starting mining: ' + error.message, 'error');
             }
         };
 
@@ -1521,7 +1564,7 @@
                 miningActive = false;
                 miningTotalMined = 0;
                 updateUI();
-                showMessage('Mining complete! You earned 1 USDT.', 'success');
+                window.showMessage('Mining complete! You earned 1 USDT.', 'success');
             }
             if (miningInterval) {
                 clearInterval(miningInterval);
@@ -1593,11 +1636,11 @@
         window.confirmBuy = async function() {
             const amount = parseFloat(document.getElementById('buyAmount').value);
             if (!amount || amount !== 100) {
-                showMessage('Price is exactly 100 USDT.', 'error');
+                window.showMessage('Price is exactly 100 USDT.', 'error');
                 return;
             }
             if ((currentUserData.balance || 0) < amount) {
-                showMessage('Insufficient balance. Please recharge first.', 'error');
+                window.showMessage('Insufficient balance. Please recharge first.', 'error');
                 return;
             }
             try {
@@ -1608,7 +1651,7 @@
                 else await setDoc(docRef, { available: 18002700 });
 
                 if (available <= 0) {
-                    showMessage('Sorry, all packages are sold out!', 'error');
+                    window.showMessage('Sorry, all packages are sold out!', 'error');
                     return;
                 }
 
@@ -1628,7 +1671,7 @@
                 currentUserData.balance = newBalance;
                 currentUserData.hasMiner = true;
                 updateUI();
-                closeModal();
+                window.closeModal();
 
                 const newAvailable = available - 1;
                 document.querySelectorAll('#minerAvailable, #minerAvailableDisplay').forEach(el => {
@@ -1638,10 +1681,10 @@
                 document.getElementById('buyNowBtn').style.display = 'none';
                 document.getElementById('buySuccessMsg').style.display = 'block';
 
-                showMessage('Package purchased successfully! You can now start mining.', 'success');
+                window.showMessage('Package purchased successfully! You can now start mining.', 'success');
                 updateMiningButtonState();
             } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
+                window.showMessage('Error: ' + error.message, 'error');
             }
         };
 
@@ -1664,7 +1707,6 @@
             const container = document.getElementById('qrcode-container');
             container.innerHTML = '';
             const address = document.getElementById('rechargeAddress').value;
-            // QRCode is loaded from CDN (defer)
             if (typeof QRCode !== 'undefined') {
                 new QRCode(container, {
                     text: address,
@@ -1675,7 +1717,6 @@
                     correctLevel: QRCode.CorrectLevel.H
                 });
             } else {
-                // fallback: if QRCode not loaded yet, retry
                 setTimeout(generateQR, 500);
             }
         }
@@ -1684,11 +1725,11 @@
             const amount = parseFloat(document.getElementById('depositAmount').value);
             const txid = document.getElementById('depositTxid').value.trim();
             if (!amount || amount <= 0) {
-                showMessage('Please enter a valid deposit amount.', 'error');
+                window.showMessage('Please enter a valid deposit amount.', 'error');
                 return;
             }
             if (!txid) {
-                showMessage('Please enter the transaction ID (TXID).', 'error');
+                window.showMessage('Please enter the transaction ID (TXID).', 'error');
                 return;
             }
             const btn = document.getElementById('submitDepositBtn');
@@ -1705,11 +1746,11 @@
                 createdAt: serverTimestamp(),
                 note: 'User submitted deposit via form'
             }).then(() => {
-                showMessage('Your payment is under review. Please wait for admin approval.', 'success');
+                window.showMessage('Your payment is under review. Please wait for admin approval.', 'success');
                 document.getElementById('depositAmount').value = '';
                 document.getElementById('depositTxid').value = '';
             }).catch(error => {
-                showMessage('Error: ' + error.message, 'error');
+                window.showMessage('Error: ' + error.message, 'error');
                 btn.disabled = false;
                 document.getElementById('depositStatusMsg').style.display = 'none';
             });
@@ -1737,15 +1778,15 @@
             const password = document.getElementById('withdrawPassword').value;
 
             if (!amount || amount < 30) {
-                showMessage('Minimum withdrawal is 30 USDT.', 'error');
+                window.showMessage('Minimum withdrawal is 30 USDT.', 'error');
                 return;
             }
             if (!address) {
-                showMessage('Please enter withdrawal address.', 'error');
+                window.showMessage('Please enter withdrawal address.', 'error');
                 return;
             }
             if (!password) {
-                showMessage('Please enter your password.', 'error');
+                window.showMessage('Please enter your password.', 'error');
                 return;
             }
 
@@ -1753,13 +1794,13 @@
                 const cred = EmailAuthProvider.credential(currentUser.email, password);
                 await reauthenticateWithCredential(currentUser, cred);
             } catch {
-                showMessage('Incorrect password.', 'error');
+                window.showMessage('Incorrect password.', 'error');
                 return;
             }
 
             const balance = currentUserData.balance || 0;
             if (amount > balance) {
-                showMessage('Insufficient balance.', 'error');
+                window.showMessage('Insufficient balance.', 'error');
                 return;
             }
 
@@ -1776,13 +1817,13 @@
                     createdAt: serverTimestamp(),
                     processedAt: null
                 });
-                showMessage('Withdrawal request submitted for approval.', 'success');
+                window.showMessage('Withdrawal request submitted for approval.', 'success');
                 document.getElementById('withdrawAmount').value = '';
                 document.getElementById('withdrawAddress').value = '';
                 document.getElementById('withdrawPassword').value = '';
                 document.getElementById('actuallyReceived').textContent = '0.00 USDT';
             } catch (error) {
-                showMessage('Error submitting withdrawal: ' + error.message, 'error');
+                window.showMessage('Error submitting withdrawal: ' + error.message, 'error');
             }
         };
 
@@ -1795,15 +1836,15 @@
             const confirm = document.getElementById('confirmNewPassword').value;
 
             if (!old || !newpw || !confirm) {
-                showMessage('Please fill in all fields.', 'error');
+                window.showMessage('Please fill in all fields.', 'error');
                 return;
             }
             if (newpw.length < 6) {
-                showMessage('New password must be at least 6 characters.', 'error');
+                window.showMessage('New password must be at least 6 characters.', 'error');
                 return;
             }
             if (newpw !== confirm) {
-                showMessage('Passwords do not match.', 'error');
+                window.showMessage('Passwords do not match.', 'error');
                 return;
             }
             try {
@@ -1815,9 +1856,9 @@
                 document.getElementById('oldPassword').value = '';
                 document.getElementById('newPassword').value = '';
                 document.getElementById('confirmNewPassword').value = '';
-                showMessage('Password changed successfully!', 'success');
+                window.showMessage('Password changed successfully!', 'success');
             } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
+                window.showMessage('Error: ' + error.message, 'error');
             }
         };
 
@@ -1827,9 +1868,9 @@
         window.logoutUser = async function() {
             try {
                 await signOut(auth);
-                showMessage('Logged out.', 'success');
+                window.showMessage('Logged out.', 'success');
             } catch (error) {
-                showMessage('Error logging out: ' + error.message, 'error');
+                window.showMessage('Error logging out: ' + error.message, 'error');
             }
         };
 
@@ -2001,7 +2042,7 @@
         };
 
         // ==============================================================
-        // ADMIN FUNCTIONS (v10)
+        // ADMIN FUNCTIONS
         // ==============================================================
         async function loadAdminData() {
             if (!isAdmin) return;
@@ -2044,10 +2085,10 @@
                 reports: 'adminReports'
             };
             document.getElementById(targetMap[tab]).style.display = 'block';
-            if (tab === 'users') refreshUsers();
+            if (tab === 'users') window.refreshUsers();
             if (tab === 'deposits') loadAdminDeposits();
             if (tab === 'withdrawals') loadAdminWithdrawals();
-            if (tab === 'reports') loadReports();
+            if (tab === 'reports') window.loadReports();
         };
 
         window.refreshUsers = async function() {
@@ -2067,7 +2108,7 @@
                             <td>$${balance.toFixed(2)}</td>
                             <td>${invite}</td>
                             <td>
-                                <button class="btn btn-sm btn-primary" onclick="openBalanceModal('${doc.id}','${email}',${balance})">Adjust</button>
+                                <button class="btn btn-sm btn-primary" onclick="window.openBalanceModal('${doc.id}','${email}',${balance})">Adjust</button>
                             </td>
                         </tr>
                     `;
@@ -2091,11 +2132,11 @@
             const amount = parseFloat(document.getElementById('balanceAmount').value);
             const reason = document.getElementById('balanceReason').value.trim();
             if (isNaN(amount) || amount === 0) {
-                showMessage('Please enter a valid amount.', 'error');
+                window.showMessage('Please enter a valid amount.', 'error');
                 return;
             }
             if (!reason) {
-                showMessage('Please enter a reason.', 'error');
+                window.showMessage('Please enter a reason.', 'error');
                 return;
             }
             try {
@@ -2114,15 +2155,15 @@
                         timestamp: serverTimestamp()
                     });
                 });
-                showMessage('Balance updated successfully!', 'success');
-                closeBalanceModal();
-                refreshUsers();
+                window.showMessage('Balance updated successfully!', 'success');
+                window.closeBalanceModal();
+                window.refreshUsers();
                 if (currentUser && currentUser.uid === balanceTargetUserId) {
                     currentUserData.balance = (currentUserData.balance || 0) + amount;
                     updateUI();
                 }
             } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
+                window.showMessage('Error: ' + error.message, 'error');
             }
         };
 
@@ -2158,8 +2199,8 @@
                             </div>
                             ${status === 'pending' ? `
                                 <div style="margin-top:8px;display:flex;gap:6px;">
-                                    <button class="btn btn-sm btn-success" onclick="approveDeposit('${doc.id}')">Approve</button>
-                                    <button class="btn btn-sm btn-danger" onclick="rejectDeposit('${doc.id}')">Reject</button>
+                                    <button class="btn btn-sm btn-success" onclick="window.approveDeposit('${doc.id}')">Approve</button>
+                                    <button class="btn btn-sm btn-danger" onclick="window.rejectDeposit('${doc.id}')">Reject</button>
                                 </div>
                             ` : ''}
                         </div>
@@ -2171,16 +2212,13 @@
             }
         }
 
-        // ==============================================================
-        // APPROVE DEPOSIT (ADD BALANCE)
-        // ==============================================================
         window.approveDeposit = async function(id) {
             try {
                 const docRef = doc(db, 'deposits', id);
                 const docSnap = await getDoc(docRef);
-                if (!docSnap.exists()) return showMessage('Deposit not found.', 'error');
+                if (!docSnap.exists()) return window.showMessage('Deposit not found.', 'error');
                 const data = docSnap.data();
-                if (!data.userId) return showMessage('Missing user ID.', 'error');
+                if (!data.userId) return window.showMessage('Missing user ID.', 'error');
 
                 await runTransaction(db, async (transaction) => {
                     transaction.update(docRef, { status: 'approved' });
@@ -2201,28 +2239,25 @@
                         timestamp: serverTimestamp()
                     });
                 });
-                showMessage('Deposit approved and balance added!', 'success');
+                window.showMessage('Deposit approved and balance added!', 'success');
                 loadAdminDeposits();
                 loadAdminData();
             } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
+                window.showMessage('Error: ' + error.message, 'error');
             }
         };
 
         window.rejectDeposit = async function(id) {
             try {
                 await updateDoc(doc(db, 'deposits', id), { status: 'rejected' });
-                showMessage('Deposit rejected.', 'success');
+                window.showMessage('Deposit rejected.', 'success');
                 loadAdminDeposits();
                 loadAdminData();
             } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
+                window.showMessage('Error: ' + error.message, 'error');
             }
         };
 
-        // ==============================================================
-        // APPROVE WITHDRAWAL (DEDUCT BALANCE)
-        // ==============================================================
         async function loadAdminWithdrawals() {
             const container = document.getElementById('withdrawalsList');
             container.innerHTML = '<div style="color:#4a5070;text-align:center;">Loading...</div>';
@@ -2255,8 +2290,8 @@
                             </div>
                             ${status === 'pending' ? `
                                 <div style="margin-top:8px;display:flex;gap:6px;">
-                                    <button class="btn btn-sm btn-success" onclick="approveWithdrawal('${doc.id}')">Approve</button>
-                                    <button class="btn btn-sm btn-danger" onclick="rejectWithdrawal('${doc.id}')">Reject</button>
+                                    <button class="btn btn-sm btn-success" onclick="window.approveWithdrawal('${doc.id}')">Approve</button>
+                                    <button class="btn btn-sm btn-danger" onclick="window.rejectWithdrawal('${doc.id}')">Reject</button>
                                 </div>
                             ` : ''}
                         </div>
@@ -2272,9 +2307,9 @@
             try {
                 const docRef = doc(db, 'withdrawals', id);
                 const docSnap = await getDoc(docRef);
-                if (!docSnap.exists()) return showMessage('Withdrawal not found.', 'error');
+                if (!docSnap.exists()) return window.showMessage('Withdrawal not found.', 'error');
                 const data = docSnap.data();
-                if (!data.userId) return showMessage('Missing user ID.', 'error');
+                if (!data.userId) return window.showMessage('Missing user ID.', 'error');
 
                 await runTransaction(db, async (transaction) => {
                     transaction.update(docRef, { status: 'approved' });
@@ -2296,22 +2331,22 @@
                         timestamp: serverTimestamp()
                     });
                 });
-                showMessage('Withdrawal approved!', 'success');
+                window.showMessage('Withdrawal approved!', 'success');
                 loadAdminWithdrawals();
                 loadAdminData();
             } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
+                window.showMessage('Error: ' + error.message, 'error');
             }
         };
 
         window.rejectWithdrawal = async function(id) {
             try {
                 await updateDoc(doc(db, 'withdrawals', id), { status: 'rejected' });
-                showMessage('Withdrawal rejected.', 'success');
+                window.showMessage('Withdrawal rejected.', 'success');
                 loadAdminWithdrawals();
                 loadAdminData();
             } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
+                window.showMessage('Error: ' + error.message, 'error');
             }
         };
 
@@ -2386,7 +2421,7 @@
         // ==============================================================
         window.runDailyProfit = async function() {
             if (!isAdmin) {
-                showMessage('Only admin can run daily profit.', 'error');
+                window.showMessage('Only admin can run daily profit.', 'error');
                 return;
             }
             try {
@@ -2411,19 +2446,19 @@
                         count++;
                     }
                 }
-                showMessage(`Daily profit credited to ${count} users!`, 'success');
+                window.showMessage(`Daily profit credited to ${count} users!`, 'success');
                 loadAdminData();
                 if (currentUser) {
                     await loadUserData(currentUser.uid);
                     updateUI();
                 }
             } catch (error) {
-                showMessage('Error running daily profit: ' + error.message, 'error');
+                window.showMessage('Error running daily profit: ' + error.message, 'error');
             }
         };
 
         // ==============================================================
-        // PWA: beforeinstallprompt
+        // PWA
         // ==============================================================
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -2434,8 +2469,8 @@
 
         window.addEventListener('appinstalled', () => {
             deferredPrompt = null;
-            showMessage('App installed successfully!', 'success');
-            closeAppInstall();
+            window.showMessage('App installed successfully!', 'success');
+            window.closeAppInstall();
         });
 
         window.installPWA = function() {
@@ -2443,16 +2478,16 @@
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
-                        showMessage('App installed successfully!', 'success');
+                        window.showMessage('App installed successfully!', 'success');
                     } else {
-                        showMessage('Installation cancelled.', 'error');
+                        window.showMessage('Installation cancelled.', 'error');
                     }
                     deferredPrompt = null;
-                    closeAppInstall();
+                    window.closeAppInstall();
                 });
             } else {
                 document.getElementById('pwaInstruction').classList.toggle('show');
-                closeAppInstall();
+                window.closeAppInstall();
             }
         };
 
@@ -2463,49 +2498,10 @@
                 const inst = document.getElementById('pwaInstruction');
                 inst.classList.toggle('show');
                 if (inst.classList.contains('show')) {
-                    showMessage('Follow the instructions to add to home screen', 'success');
-                    setTimeout(clearMessage, 3000);
+                    window.showMessage('Follow the instructions to add to home screen', 'success');
+                    setTimeout(window.clearMessage, 3000);
                 }
             }
-        };
-
-        window.closeAppInstall = function() {
-            document.getElementById('appInstallPopup').classList.remove('show');
-        };
-
-        // ==============================================================
-        // MODAL HELPERS
-        // ==============================================================
-        window.closeModal = function() {
-            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
-        };
-        window.closeBalanceModal = function() {
-            document.getElementById('balanceModal').classList.remove('show');
-        };
-        window.closeTeamDetails = function() {
-            document.getElementById('teamDetailsModal').classList.remove('show');
-        };
-
-        // ==============================================================
-        // COPY TEXT
-        // ==============================================================
-        window.copyText = function(id) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            const val = el.value || el.textContent;
-            navigator.clipboard.writeText(val).then(() => {
-                showMessage('Copied!', 'success');
-                setTimeout(clearMessage, 2000);
-            }).catch(() => {
-                const textarea = document.createElement('textarea');
-                textarea.value = val;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                showMessage('Copied!', 'success');
-                setTimeout(clearMessage, 2000);
-            });
         };
 
         // ==============================================================
@@ -2534,41 +2530,4 @@
                         <li><strong>Level 3:</strong> 1%</li>
                     </ul>
                     <h4 style="color:#f7931a;margin-top:12px;">📱 Account Policy</h4>
-                    <ul style="padding-left:18px;color:#8892b0;">
-                        <li>One account per device.</li>
-                        <li>Multiple accounts may be suspended.</li>
-                    </ul>
-                    <h4 style="color:#f7931a;margin-top:12px;">💸 Withdrawals</h4>
-                    <ul style="padding-left:18px;color:#8892b0;">
-                        <li>Minimum: <strong>30 USDT</strong></li>
-                        <li>10% withdrawal fee</li>
-                    </ul>
-                    <p style="margin-top:12px;color:#ccd6f6;">Thank you for choosing BTC Cloud Mining!</p>
-                    <button class="btn btn-primary" onclick="closeModal()" style="margin-top:16px;">I Understand</button>
-                </div>
-            `;
-            modal.classList.add('show');
-        }
-
-        // ==============================================================
-        // INIT: Auto-fill invite from URL
-        // ==============================================================
-        (function() {
-            const params = new URLSearchParams(window.location.search);
-            const ref = params.get('ref');
-            if (ref) {
-                document.getElementById('inviteCode').value = ref;
-                setTimeout(() => {
-                    showMessage('Invitation code auto-filled!', 'success');
-                    setTimeout(clearMessage, 2000);
-                }, 500);
-            }
-        })();
-
-        console.log('BTC Cloud Mining Platform loaded (Firebase v10).');
-        console.log('Admin email:', ADMIN_EMAIL);
-        console.log('BEP20 Address:', BEP20_ADDRESS);
-        console.log('TRC20 Address:', TRC20_ADDRESS);
-    </script>
-</body>
-</html>
+                    <ul style="padding-left:18px;color:#

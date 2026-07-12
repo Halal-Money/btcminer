@@ -1858,7 +1858,6 @@
               <button
                 class="btn btn-primary"
                 style="margin-top: 12px"
-                id="withdrawConfirmBtn"
                 onclick="submitWithdraw()"
               >
                 <i class="fas fa-check"></i> Confirm
@@ -3313,7 +3312,7 @@
       }
 
       // ================================================================
-      // WITHDRAW (FIXED)
+      // WITHDRAW
       // ================================================================
       function switchWithdraw(currency) {
         withdrawCurrency = currency;
@@ -3341,7 +3340,6 @@
         );
         const address = document.getElementById("withdrawAddress").value.trim();
         const password = document.getElementById("withdrawPassword").value;
-        const confirmBtn = document.getElementById("withdrawConfirmBtn");
 
         if (!amount || amount < 30) {
           showMessage("Minimum withdrawal is 30 USDT.", "error");
@@ -3356,10 +3354,6 @@
           return;
         }
 
-        // Disable button and show processing state
-        confirmBtn.disabled = true;
-        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-
         try {
           const cred = firebase.auth.EmailAuthProvider.credential(
             currentUser.email,
@@ -3368,16 +3362,12 @@
           await currentUser.reauthenticateWithCredential(cred);
         } catch (error) {
           showMessage("Incorrect password.", "error");
-          confirmBtn.disabled = false;
-          confirmBtn.innerHTML = '<i class="fas fa-check"></i> Confirm';
           return;
         }
 
         const balance = currentUserData.balance || 0;
         if (amount > balance) {
-          showMessage("Insufficient balance. Please recharge first.", "error");
-          confirmBtn.disabled = false;
-          confirmBtn.innerHTML = '<i class="fas fa-check"></i> Confirm';
+          showMessage("Insufficient balance.", "error");
           return;
         }
 
@@ -3394,34 +3384,13 @@
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             processedAt: null,
           });
-
-          // Hide button and show success message
-          confirmBtn.style.display = "none";
-          // Add success badge
-          const successBadge = document.createElement("div");
-          successBadge.className = "card";
-          successBadge.style.marginTop = "12px";
-          successBadge.style.textAlign = "center";
-          successBadge.style.color = "#69db7c";
-          successBadge.style.fontWeight = "600";
-          successBadge.innerHTML =
-            '<i class="fas fa-check-circle"></i> Withdrawal request sent to admin for approval.';
-          document
-            .querySelector("#page-withdraw .card:last-child")
-            .after(successBadge);
-
-          showMessage(
-            "Your withdrawal request has been submitted for admin approval.",
-            "success",
-          );
+          showMessage("Withdrawal request submitted for approval.", "success");
           document.getElementById("withdrawAmount").value = "";
           document.getElementById("withdrawAddress").value = "";
           document.getElementById("withdrawPassword").value = "";
           document.getElementById("actuallyReceived").textContent = "0.00 USDT";
         } catch (error) {
           showMessage("Error submitting withdrawal: " + error.message, "error");
-          confirmBtn.disabled = false;
-          confirmBtn.innerHTML = '<i class="fas fa-check"></i> Confirm';
         }
       }
 
@@ -3907,14 +3876,16 @@
                             <div style="margin-top:6px;">
                                 <span class="${statusClass}" style="font-weight:600;">${status.toUpperCase()}</span>
                             </div>
-                            ${status === "pending"
-                              ? `
+                            ${
+                              status === "pending"
+                                ? `
                                 <div style="margin-top:8px;display:flex;gap:6px;">
                                     <button class="btn btn-sm btn-success" onclick="approveDeposit('${doc.id}')">Approve</button>
                                     <button class="btn btn-sm btn-danger" onclick="rejectDeposit('${doc.id}')">Reject</button>
                                 </div>
                             `
-                              : ""}
+                                : ""
+                            }
                         </div>
                     `;
           });
@@ -4009,4 +3980,264 @@
             const data = doc.data();
             const status = data.status || "pending";
             const statusClass =
-              status === "pending
+              status === "pending"
+                ? "status-pending"
+                : status === "approved"
+                  ? "status-approved"
+                  : "status-rejected";
+            html += `
+                        <div class="card" style="border-left:3px solid ${status === "approved" ? "#69db7c" : status === "rejected" ? "#ff6b6b" : "#ffd43b"};">
+                            <div style="display:flex;justify-content:space-between;">
+                                <span style="color:#ccd6f6;">${data.userEmail || "N/A"}</span>
+                                <span style="color:#f7931a;font-weight:700;">$${data.amount?.toFixed(2) || "0.00"}</span>
+                            </div>
+                            <div style="font-size:12px;color:#8892b0;">
+                                ${data.currency || "USDT"} • Fee: $${(data.fee || 0).toFixed(2)} • Net: $${(data.netAmount || 0).toFixed(2)}
+                            </div>
+                            <div style="font-size:12px;color:#8892b0;">
+                                Address: ${data.address || "N/A"} • ${data.createdAt ? data.createdAt.toDate().toLocaleString() : "N/A"}
+                            </div>
+                            <div style="margin-top:6px;">
+                                <span class="${statusClass}" style="font-weight:600;">${status.toUpperCase()}</span>
+                            </div>
+                            ${
+                              status === "pending"
+                                ? `
+                                <div style="margin-top:8px;display:flex;gap:6px;">
+                                    <button class="btn btn-sm btn-success" onclick="approveWithdrawal('${doc.id}')">Approve</button>
+                                    <button class="btn btn-sm btn-danger" onclick="rejectWithdrawal('${doc.id}')">Reject</button>
+                                </div>
+                            `
+                                : ""
+                            }
+                        </div>
+                    `;
+          });
+          container.innerHTML = html;
+        } catch (error) {
+          container.innerHTML =
+            '<div style="color:#ff6b6b;">Error loading withdrawals</div>';
+        }
+      }
+
+      async function approveWithdrawal(id) {
+        try {
+          const doc = await db.collection("withdrawals").doc(id).get();
+          const data = doc.data();
+          if (!data || !data.userId) {
+            showMessage("Withdrawal data missing user ID.", "error");
+            return;
+          }
+
+          await db.collection("withdrawals").doc(id).update({
+            status: "approved",
+          });
+
+          const userRef = db.collection("users").doc(data.userId);
+          const userDoc = await userRef.get();
+
+          if (userDoc.exists) {
+            const currentBalance = userDoc.data().balance || 0;
+            const newBalance = currentBalance - data.amount;
+            if (newBalance < 0) {
+              showMessage("User has insufficient balance.", "error");
+              return;
+            }
+            await userRef.update({
+              balance: newBalance,
+              totalWithdrawals: firebase.firestore.FieldValue.increment(
+                data.amount,
+              ),
+            });
+            await userRef.collection("transactions").add({
+              type: "withdrawal",
+              amount: -data.amount,
+              description: "Withdrawal approved",
+              timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+            showMessage("Withdrawal approved!", "success");
+          } else {
+            showMessage("User not found.", "error");
+          }
+
+          loadAdminWithdrawals();
+          loadAdminData();
+        } catch (error) {
+          showMessage("Error approving withdrawal: " + error.message, "error");
+        }
+      }
+
+      async function rejectWithdrawal(id) {
+        try {
+          await db
+            .collection("withdrawals")
+            .doc(id)
+            .update({ status: "rejected" });
+          showMessage("Withdrawal rejected.", "success");
+          loadAdminWithdrawals();
+          loadAdminData();
+        } catch (error) {
+          showMessage("Error: " + error.message, "error");
+        }
+      }
+
+      // ================================================================
+      // ADMIN REPORTS
+      // ================================================================
+      async function loadReports() {
+        const dateInput = document.getElementById("reportDate");
+        const date = dateInput.value || new Date().toISOString().split("T")[0];
+        const start = new Date(date + "T00:00:00");
+        const end = new Date(date + "T23:59:59");
+
+        try {
+          const depSnap = await db
+            .collection("deposits")
+            .where("status", "==", "approved")
+            .where("createdAt", ">=", start)
+            .where("createdAt", "<=", end)
+            .get();
+          let totalDep = 0;
+          depSnap.forEach((d) => (totalDep += d.data().amount || 0));
+
+          const withSnap = await db
+            .collection("withdrawals")
+            .where("status", "==", "approved")
+            .where("createdAt", ">=", start)
+            .where("createdAt", "<=", end)
+            .get();
+          let totalWith = 0;
+          withSnap.forEach((d) => (totalWith += d.data().amount || 0));
+
+          document.getElementById("reportDeposits").textContent =
+            "$" + totalDep.toFixed(2);
+          document.getElementById("reportWithdrawals").textContent =
+            "$" + totalWith.toFixed(2);
+          document.getElementById("reportNet").textContent =
+            "$" + (totalDep - totalWith).toFixed(2);
+
+          let html =
+            '<div style="margin-top:8px;font-weight:600;color:#ccd6f6;">Transactions</div>';
+          const allTrans = [];
+          depSnap.forEach((d) => {
+            allTrans.push({
+              type: "Deposit",
+              amount: d.data().amount || 0,
+              user: d.data().userEmail || "N/A",
+              time: d.data().createdAt?.toDate().toLocaleTimeString() || "N/A",
+            });
+          });
+          withSnap.forEach((d) => {
+            allTrans.push({
+              type: "Withdrawal",
+              amount: -(d.data().amount || 0),
+              user: d.data().userEmail || "N/A",
+              time: d.data().createdAt?.toDate().toLocaleTimeString() || "N/A",
+            });
+          });
+          allTrans.sort((a, b) => a.time.localeCompare(b.time));
+          if (allTrans.length === 0) {
+            html +=
+              '<div class="no-data" style="padding:10px;">No transactions for this day</div>';
+          } else {
+            allTrans.forEach((t) => {
+              html += `
+                            <div class="record-item">
+                                <div>
+                                    <div>${t.type}</div>
+                                    <div class="date">${t.user} • ${t.time}</div>
+                                </div>
+                                <div class="amount ${t.amount >= 0 ? "positive" : "negative"}">
+                                    ${t.amount >= 0 ? "+" : ""}$${Math.abs(t.amount).toFixed(2)}
+                                </div>
+                            </div>
+                        `;
+            });
+          }
+          document.getElementById("reportTransactions").innerHTML = html;
+        } catch (error) {
+          console.error("Error loading reports:", error);
+        }
+      }
+
+      // ================================================================
+      // DAILY PROFIT (manual trigger)
+      // ================================================================
+      async function runDailyProfit() {
+        if (!isAdmin) {
+          showMessage("Only admin can run daily profit.", "error");
+          return;
+        }
+        try {
+          const usersSnap = await db.collection("users").get();
+          let count = 0;
+          for (const doc of usersSnap.docs) {
+            const data = doc.data();
+            const balance = data.balance || 0;
+            if (balance > 0) {
+              const profit = balance * 0.01;
+              const newBalance = balance + profit;
+              await db.collection("users").doc(doc.id).update({
+                balance: newBalance,
+                lastDailyProfit:
+                  firebase.firestore.FieldValue.serverTimestamp(),
+              });
+              await db
+                .collection("users")
+                .doc(doc.id)
+                .collection("transactions")
+                .add({
+                  type: "profit",
+                  amount: profit,
+                  description: "Daily 1% profit",
+                  timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+              count++;
+            }
+          }
+          showMessage(`Daily profit credited to ${count} users!`, "success");
+          loadAdminData();
+          if (currentUser) {
+            await loadUserData(currentUser.uid);
+            updateUI();
+          }
+        } catch (error) {
+          showMessage("Error running daily profit: " + error.message, "error");
+        }
+      }
+
+      // ================================================================
+      // MESSAGE HELPER
+      // ================================================================
+      function showMessage(text, type) {
+        messageEl.textContent = text;
+        messageEl.className = `message ${type}`;
+      }
+
+      function clearMessage() {
+        messageEl.className = "message";
+        messageEl.textContent = "";
+      }
+
+      // ================================================================
+      // INIT: Check URL for invite code
+      // ================================================================
+      (function () {
+        const params = new URLSearchParams(window.location.search);
+        const ref = params.get("ref");
+        if (ref) {
+          document.getElementById("inviteCode").value = ref;
+          setTimeout(() => {
+            showMessage("Invitation code auto-filled!", "success");
+            setTimeout(clearMessage, 2000);
+          }, 500);
+        }
+      })();
+
+      console.log("BTC Cloud Mining Platform loaded.");
+      console.log("Admin email:", ADMIN_EMAIL);
+      console.log("BEP20 Address:", BEP20_ADDRESS);
+      console.log("TRC20 Address:", TRC20_ADDRESS);
+    </script>
+  </body>
+</html>
